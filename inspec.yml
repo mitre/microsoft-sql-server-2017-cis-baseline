@@ -1,8 +1,8 @@
-name: CIS Microsoft SQL Server 2017 Benchmark InSpec Profile
-title: InSpec Profile
+name: microsoft-sql-server-2017-cis-baseline
+title: microsoft-sql-server-2017-cis-baseline
 maintainer: MITRE SAF
 copyright: MITRE SAF
 copyright_email: saf@groups.mitre.org
 license: Apache-2.0
-summary: '"An InSpec Compliance Profile to validate the CIS Microsoft SQL Server 2017 Benchmark."'
-version: 0.1.0
+summary: "An InSpec Profile to validate the Microsoft SQL Server 2017 CIS Benchmark"
+version: 1.2.0
