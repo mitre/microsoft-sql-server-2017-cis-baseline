@@ -6,3 +6,5 @@ copyright_email: saf@groups.mitre.org
 license: Apache-2.0
 summary: "An InSpec Profile to validate the Microsoft SQL Server 2017 CIS Benchmark"
 version: 1.2.0
+
+inputs:
