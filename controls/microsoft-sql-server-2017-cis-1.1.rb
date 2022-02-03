@@ -47,20 +47,48 @@ v7
 2.2 Ensure Software is Supported by Vendor 
  
 Ensure that only software applications or operating systems currently supported 
-
 by the software s vendor are added to the organization s authorized software 
-inventory. Unsupported software should be tagged as unsupported in the inventory
+inventory. Unsupported software should be tagged as unsupported in the inventory system. 
 
-system. 
- 
- 
- 
 v6 
 4 Continuous Vulnerability Assessment and Remediation 
  
-Continuous Vulnerability Assessment and Remediation 
- 
- 
- 
-"
+Continuous Vulnerability Assessment and Remediation"
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  get_all_dbs_query = %{
+  SELECT name FROM master.sys.databases;
+  GO
+  }
+
+  databases = sql_session.query(get_all_dbs_query).column('name')
+
+  databases.each do |db| # map - when passes outnumber failures
+    sql_session = mssql_session(
+      user: input('user'),
+      password: input('password'),
+      host: input('host'),
+      instance: input('instance'),
+      port: input('port'),
+      db_name: db)
+
+    query = %{
+      SELECT SERVERPROPERTY('ProductLevel') as SP_installed,
+      SERVERPROPERTY('ProductVersion') as Version;
+      GO
+      }
+
+    describe "#{db} db: SQL Version" do
+      subject { sql_session.query(query).column('version').uniq }
+      it { should match_array input('sql_version') }
+      # expect | failure message
+    end
+  end
+
 end

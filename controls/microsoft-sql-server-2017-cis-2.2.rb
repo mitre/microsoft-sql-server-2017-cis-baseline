@@ -85,9 +85,66 @@ v6
 For in-house developed applications ensure that development artifacts sample 
 data and scripts unused libraries components debug code or tools are not
 included 
-in the deployed software or accessible in the production environment. 
- 
- 
- 
-"
+in the deployed software or accessible in the production environment."
+
+  # TO DO
+  # Get a list of all DBs
+  # create an input for DBs to be excluded
+
+  databases = input('db_name') # Alter this variable by querying to get data automatically
+
+  databases.each do |db|
+
+    sql_session = mssql_session(
+      user: input('user'),
+      password: input('password'),
+      host: input('host'),
+      instance: input('instance'),
+      port: input('port'),
+      db_name: db) # optional
+      # move this out of the loop
+      # Start the loop here and pass
+
+    user_created_assemblies_query = %{
+      USE #{db}
+      SELECT name AS Assembly_Name, permission_set_desc
+      FROM sys.assemblies
+      WHERE is_user_defined = 1;
+      GO
+    }
+
+    clr_strict_security_query = %{
+      SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+      FROM sys.configurations
+      WHERE name = 'clr strict security';
+    }
+
+    clr_enabled_query = %{
+      SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+      FROM sys.configurations
+      WHERE name = 'clr enabled';
+    }
+
+    if sql_session.query(user_created_assemblies_query).empty?
+      impact 0.0
+      describe "#{db} db: No user-created assemblies found" do
+        skip "#{db} db: Not applicable"
+      # describe 'CLR assemblies are in use' do
+      #   skip "Applications may need to be rearchitected to eliminate their CLR assemblies usage before disabling this setting"
+      end
+    else
+      if (sql_session.query(clr_strict_security_query).column('value_configured')[0] == "1") and (sql_session.query(clr_strict_security_query).column('value_in_use')[0] == "1")
+        describe 'CLR strict security' do
+          skip "Recommendation NA?"
+        end
+      else
+        describe 'CLR enabled' do
+          subject { sql_session.query(clr_enabled_query).rows[0] }
+          its('value_configured') { should cmp 0 }
+          its('value_in_use') { should cmp 0 }
+        end
+      end
+    end
+    
+  end
 end
