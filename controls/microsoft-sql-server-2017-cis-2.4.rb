@@ -47,9 +47,25 @@ with validated business needs are running on each system.
 v6 
 18 Application Software Security 
  
-Application Software Security 
- 
- 
- 
-"
+Application Software Security"
+
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  database_mail_xps_query = %{
+    SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+    FROM sys.configurations
+    WHERE name = 'Database Mail XPs';
+  }
+
+  describe "Database Mail XPs option should be disabled." do
+    subject { sql_session.query(database_mail_xps_query).rows[0] }
+    its('value_configured') { should cmp 0 }
+    its('value_in_use') { should cmp 0 }
+  end
 end

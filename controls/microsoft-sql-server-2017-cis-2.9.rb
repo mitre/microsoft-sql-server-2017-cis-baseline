@@ -53,9 +53,25 @@ controls will
 enforce the principle that only authorized individuals should have access to the
 
 information based on their need to access the information as a part of their 
-responsibilities. 
- 
- 
- 
-"
+responsibilities."
+
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  trustworthy_db_query = %{
+    SELECT name
+    FROM sys.databases;
+    WHERE is_trustworthy_on = 1;
+    AND name != 'msdb';
+  }
+
+  describe "Trustworthy databases" do
+    subject { sql_session.query(trustworthy_db_query).column('name') }
+    it { should be_empty }
+  end
 end

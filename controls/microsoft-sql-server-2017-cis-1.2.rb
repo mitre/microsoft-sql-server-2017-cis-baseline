@@ -64,9 +64,9 @@ Mail Web Database
  
 Operate critical services on separate physical or logical host machines such as 
 
-DNS file mail web and database servers. 
- 
- 
- 
-"
+DNS file mail web and database servers."
+
+  describe 'SQL Server software should be installed on a dedicated server.' do
+    skip 'This control requires a manual review to ensure that SQL Server software is installed on a dedicated server.'
+  end
 end

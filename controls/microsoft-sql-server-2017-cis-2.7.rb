@@ -69,9 +69,26 @@ v6
 9.1 Limit Open Ports Protocols and Services 
  
 Ensure that only ports protocols and services with validated business needs 
-are running on each system. 
- 
- 
- 
-"
+are running on each system."
+
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  remote_admin_connections_query = %{
+    SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+    FROM sys.configurations
+    WHERE name = 'remote admin connections'
+    AND SERVERPROPERTY('IsClustered') = 0;
+  }
+
+  describe "Remote Admin Connections option should be disabled on standalone installations." do
+    subject { sql_session.query(remote_admin_connections_query).rows[0] }
+    its('value_configured') { should cmp 0 }
+    its('value_in_use') { should cmp 0 }
+  end
 end

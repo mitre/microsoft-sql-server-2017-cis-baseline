@@ -11,7 +11,7 @@ inspec_version: ">= 4.0"
 inputs:
   - name: sql_version
     description: 'Latest stable version of MSSQL DB Server'
-    required: True
+    #required: True
 
   - name: user
     description: 'username MSSQL DB Server'
@@ -40,8 +40,8 @@ inputs:
     required: True
     sensitive: True
 
-  - name: db_name
-    description: 'names of the specific DBs being evaluated within the MSSQL server'
+  - name: excluded_dbs
+    description: 'names of the databases excluded from being evaluated'
     type: Array
     value:
       - 

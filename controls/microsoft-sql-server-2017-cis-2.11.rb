@@ -75,9 +75,23 @@ v6
 9 Limitation and Control of Network Ports Protocols and 
 Services 
  
-Limitation and Control of Network Ports Protocols and Services 
- 
- 
- 
-"
+Limitation and Control of Network Ports Protocols and Services"
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  port_query = %{
+    SELECT local_tcp_port
+    FROM sys.dm_exec_connections
+    WHERE session_id = @@SPID
+    }
+
+  describe 'SQL Server port' do
+    subject { sql_session.query(port_query).column('local_tcp_port')[0] }
+    it { should_not cmp 1433 }
+  end
 end

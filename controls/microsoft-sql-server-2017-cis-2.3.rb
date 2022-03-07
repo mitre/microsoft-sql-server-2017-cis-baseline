@@ -61,9 +61,46 @@ controls will
 enforce the principle that only authorized individuals should have access to the
 
 information based on their need to access the information as a part of their 
-responsibilities. 
- 
- 
- 
-"
+responsibilities."
+
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  get_all_dbs_query = %{
+  SELECT name FROM master.sys.databases;
+  GO
+  }
+
+  databases = sql_session.query(get_all_dbs_query).column('name')
+
+  databases.each do |db| # map - when passes outnumber failures
+    unless input('excluded_dbs').include? db
+
+      sql_session = mssql_session(
+        user: input('user'),
+        password: input('password'),
+        host: input('host'),
+        instance: input('instance'),
+        port: input('port'),
+        db_name: db)
+
+      cross_db_ownership_query = %{
+        SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+        FROM sys.configurations
+        WHERE name = 'cross db ownership chaining';
+        GO
+      }
+
+      describe "#{db} db: Cross DB Ownership Chaining option should be disabled." do
+        subject { sql_session.query(cross_db_ownership_query).rows[0] }
+        its('value_configured') { should cmp 0 }
+        its('value_in_use') { should cmp 0 }
+      end
+    end
+  end
 end

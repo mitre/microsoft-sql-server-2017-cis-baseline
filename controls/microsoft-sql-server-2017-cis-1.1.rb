@@ -29,9 +29,7 @@ before updating production instances.
 The most recent SQL Server patches can be found here: 
   
  
-https://docs.microsoft.com/en-us/sql/database-engine/install-windows/latest-updates-
-
-for-microsoft-sql-server?view=sql-server-2017"
+https://docs.microsoft.com/en-us/sql/database-engine/install-windows/latest-updates-for-microsoft-sql-server?view=sql-server-2017"
   desc "default_value", "Cumulative and security updates are not installed by default."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/install-windows/latest-updates-for-microsoft-sql-server?view=sql-server-2017'
@@ -62,33 +60,14 @@ Continuous Vulnerability Assessment and Remediation"
     instance: input('instance'),
     port: input('port'))
 
-  get_all_dbs_query = %{
-  SELECT name FROM master.sys.databases;
-  GO
-  }
+  query = %{
+    SELECT SERVERPROPERTY('ProductLevel') as SP_installed,
+    SERVERPROPERTY('ProductVersion') as Version;
+    GO
+    }
 
-  databases = sql_session.query(get_all_dbs_query).column('name')
-
-  databases.each do |db| # map - when passes outnumber failures
-    sql_session = mssql_session(
-      user: input('user'),
-      password: input('password'),
-      host: input('host'),
-      instance: input('instance'),
-      port: input('port'),
-      db_name: db)
-
-    query = %{
-      SELECT SERVERPROPERTY('ProductLevel') as SP_installed,
-      SERVERPROPERTY('ProductVersion') as Version;
-      GO
-      }
-
-    describe "#{db} db: SQL Version" do
-      subject { sql_session.query(query).column('version').uniq }
-      it { should match_array input('sql_version') }
-      # expect | failure message
-    end
+  describe "SQL Version" do
+    subject { sql_session.query(query).column('version').uniq }
+    it { should match_array input('sql_version') }
   end
-
 end

@@ -56,9 +56,25 @@ authorized operating systems and software.
 v6 
 18 Application Software Security 
  
-Application Software Security 
- 
- 
- 
-"
+Application Software Security"
+
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  startup_procs_query = %{
+    SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+    FROM sys.configurations
+    WHERE name = 'scan for startup procs';
+  }
+
+  describe "Scan for startup procs option should be disabled." do
+    subject { sql_session.query(startup_procs_query).rows[0] }
+    its('value_configured') { should cmp 0 }
+    its('value_in_use') { should cmp 0 }
+  end
 end
