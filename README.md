@@ -1,3 +1,6 @@
+# Work In Progress
+
+---
 # microsoft-sql-server-2017-cis-baseline
 An InSpec Profile to validate the Microsoft SQL Server 2017 CIS Benchmark, version 1.2.0.
 ---
