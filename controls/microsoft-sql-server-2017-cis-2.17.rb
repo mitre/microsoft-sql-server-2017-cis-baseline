@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-2.17" do
-  title " Ensure no login exists with the name 'sa' (Automated)"
+  title "Ensure no login exists with the name 'sa' (Automated)"
   desc "The sa login (e.g. principal) is a widely known and often widely used SQL Server
 account. 
 Therefore, there should not be a login called sa even when the original sa login
@@ -63,9 +63,23 @@ v6
 Minimize administrative privileges and only use administrative accounts when 
 they are required. Implement focused auditing on the use of administrative
 privileged 
-functions and monitor for anomalous behavior. 
- 
- 
- 
-"
+functions and monitor for anomalous behavior."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  sa_login_query = %{
+    SELECT principal_id, name
+    FROM sys.server_principals
+    WHERE name = 'sa';
+    }
+
+  describe 'Existing "sa" login' do
+    subject { sql_session.query(sa_login_query).rows[0] }
+    its('name') { should cmp nil }
+  end
 end

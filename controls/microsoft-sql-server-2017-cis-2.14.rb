@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-2.14" do
-  title " Ensure the 'sa' Login Account has been renamed (Automated)"
+  title "Ensure the 'sa' Login Account has been renamed (Automated)"
   desc "The sa account is a widely known and often widely used SQL Server login with
 sysadmin 
 privileges. The sa login is the original login created during installation and
@@ -48,9 +48,21 @@ authorized operating systems and software.
 v6 
 5 Controlled Use of Administration Privileges 
  
-Controlled Use of Administration Privileges 
- 
- 
- 
-"
+Controlled Use of Administration Privileges"
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  original_account_query = %{
+    SELECT name FROM sys.server_principals WHERE sid = 0x01;
+    }
+
+  describe 'Original login' do
+    subject { sql_session.query(original_account_query).rows[0] }
+    its('name') { should_not cmp 'sa' }
+  end
 end

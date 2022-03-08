@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-2.16" do
-  title " Ensure 'AUTO_CLOSE' is set to 'OFF' on contained databases 
+  title "Ensure 'AUTO_CLOSE' is set to 'OFF' on contained databases 
 (Automated)"
   desc "AUTO_CLOSE determines if a given database is closed or not after a connection
 terminates. If 
@@ -47,9 +47,23 @@ authorized operating systems and software.
 v6 
 18 Application Software Security 
  
-Application Software Security 
- 
- 
- 
-"
+Application Software Security"
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  auto_close_query = %{
+      SELECT name, containment, containment_desc, is_auto_close_on
+      FROM sys.databases
+      WHERE is_auto_close_on = 1 and containment <> 0;
+    }
+
+  describe 'List of contained databases with AUTO_CLOSE enabled' do
+    subject { sql_session.query(auto_close_query).column('is_auto_close_on') }
+    it { should be_empty }
+  end
 end

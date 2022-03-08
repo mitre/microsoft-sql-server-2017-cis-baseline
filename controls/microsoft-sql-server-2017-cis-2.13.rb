@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-2.13" do
-  title " Ensure the 'sa' Login Account is set to 'Disabled' (Automated)"
+  title "Ensure the 'sa' Login Account is set to 'Disabled' (Automated)"
   desc "The sa account is a widely known and often widely used SQL Server account with
 sysadmin 
 privileges. This is the original login created during installation and always
@@ -71,9 +71,22 @@ v6
 Minimize administrative privileges and only use administrative accounts when 
 they are required. Implement focused auditing on the use of administrative
 privileged 
-functions and monitor for anomalous behavior. 
- 
- 
- 
-"
+functions and monitor for anomalous behavior."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  sa_login_query = %{
+    SELECT name, is_disabled FROM sys.server_principals
+    WHERE sid = 0x01 AND is_disabled = 0;
+    }
+
+  describe '"sa" login account should be disabled.' do
+    subject { sql_session.query(sa_login_query).rows[0] }
+    its('name') { should cmp nil }
+  end
 end

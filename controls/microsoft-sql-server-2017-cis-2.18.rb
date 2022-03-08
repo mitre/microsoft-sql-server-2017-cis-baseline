@@ -62,9 +62,51 @@ Databases
 For applications that rely on a database use standard hardening configuration 
 templates. All systems that are part of critical business processes should also
 be 
-tested. 
- 
- 
- 
-"
+tested."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  get_all_dbs_query = %{
+  SELECT name FROM master.sys.databases;
+  GO
+  }
+
+  databases = sql_session.query(get_all_dbs_query).column('name')
+
+  databases.each do |db| # map - when passes outnumber failures
+    unless input('excluded_dbs').include? db
+
+      user_created_assemblies_query = %{
+        USE #{db}
+        SELECT name AS Assembly_Name, permission_set_desc
+        FROM sys.assemblies
+        WHERE is_user_defined = 1;
+        GO
+      }
+
+      clr_strict_security_query = %{
+        SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+        FROM sys.configurations
+        WHERE name = 'clr strict security';
+      }
+
+      if sql_session.query(user_created_assemblies_query).rows[1].nil?
+        impact 0.0
+        describe "#{db} db: No user-created assemblies found." do
+          skip "#{db} db: This control is not applicable as no user-created assemblies were found."
+        end
+      else
+        describe "#{db} db: CLR Strict Security should be enabled." do
+          subject { sql_session.query(clr_strict_security_query).rows[0] }
+          its('value_configured') { should cmp 1 }
+          its('value_in_use') { should cmp 1 }
+        end
+      end
+    end
+  end
 end

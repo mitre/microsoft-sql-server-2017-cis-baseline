@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-2.15" do
-  title " Ensure 'xp_cmdshell' Server Configuration Option is set to '0' 
+  title "Ensure 'xp_cmdshell' Server Configuration Option is set to '0' 
 (Automated)"
   desc "The xp_cmdshell option controls whether the xp_cmdshell extended stored
 procedure can 
@@ -49,9 +49,24 @@ with validated business needs are running on each system.
 v6 
 18 Application Software Security 
  
-Application Software Security 
- 
- 
- 
-"
+Application Software Security"
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  xp_cmdshell_query = %{
+    SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+    FROM sys.configurations
+    WHERE name = 'xp_cmdshell';
+    }
+
+  describe 'xp_cmdshell option should be disabled.' do
+    subject { sql_session.query(xp_cmdshell_query).rows[0] }
+    its('value_configured') { should cmp 0 }
+    its('value_in_use') { should cmp 0 }
+  end
 end

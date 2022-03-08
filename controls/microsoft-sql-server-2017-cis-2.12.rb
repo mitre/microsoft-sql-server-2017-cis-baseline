@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-2.12" do
-  title " Ensure 'Hide Instance' option is set to 'Yes' for Production SQL 
+  title "Ensure 'Hide Instance' option is set to 'Yes' for Production SQL 
 Server instances (Automated)"
   desc "Non-clustered SQL Server instances within production environments should be
 designated 
@@ -89,6 +89,24 @@ Services
  
 Limitation and Control of Network Ports Protocols and Services"
 
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
 
+  hide_instance_query = %{
+    DECLARE @getValue INT;
+    EXEC master.sys.xp_instance_regread
+    @rootkey = N'HKEY_LOCAL_MACHINE',
+    @key = N'SOFTWARE\\Microsoft\\Microsoft SQL Server\\MSSQLServer\\SuperSocketNetLib',
+    @value_name = N'HideInstance',
+    @value = @getValue OUTPUT; SELECT @getValue as value_configured;
+    }
 
+  describe 'SQL Server Hide Instance' do
+    subject { sql_session.query(hide_instance_query).rows[0] }
+    its('value_configured') { should cmp 1 }
+  end
 end
