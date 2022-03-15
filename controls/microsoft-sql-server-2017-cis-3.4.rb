@@ -48,9 +48,38 @@ v6
 16.12 Use Long Passwords For All User Accounts 
  
 Where multi-factor authentication is not supported user accounts shall be 
-required to use long passwords on the system longer than 14 characters . 
- 
- 
- 
-"
+required to use long passwords on the system longer than 14 characters."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  get_all_dbs_query = %{
+  SELECT name FROM master.sys.databases;
+  GO
+  }
+
+  databases = sql_session.query(get_all_dbs_query).column('name')
+
+  databases.each do |db| # map - when passes outnumber failures
+    unless input('excluded_dbs').include? db
+      sql_auth_users_query = %{
+        USE #{db};
+        GO
+        SELECT name AS DBUser
+        FROM sys.database_principals
+        WHERE name NOT IN ('dbo','Information_Schema','sys','guest')
+        AND type IN ('U','S','G')
+        AND authentication_type = 2;
+      }
+
+      describe "#{db} db: SQL Authentication should not be used in contained databases." do
+        subject { sql_session.query(sql_auth_users_query).rows[0] }
+        its('DBUser') { should cmp nil }
+      end
+    end
+  end
 end

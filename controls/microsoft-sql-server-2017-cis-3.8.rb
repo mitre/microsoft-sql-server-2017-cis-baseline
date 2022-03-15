@@ -85,9 +85,28 @@ Minimize administrative privileges and only use administrative accounts when
 they 
 are required. Implement focused auditing on the use of administrative privileged
 
-functions and monitor for anomalous behavior. 
- 
- 
- 
-"
+functions and monitor for anomalous behavior."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  public_role_query = %{
+    SELECT class_desc, major_id, permission_name, state_desc
+    FROM master.sys.server_permissions
+    WHERE (grantee_principal_id = SUSER_SID(N'public') and state_desc LIKE 'GRANT%')
+    AND NOT (state_desc = 'GRANT' and [permission_name] = 'VIEW ANY DATABASE' and class_desc = 'SERVER')
+    AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and class_desc = 'ENDPOINT' and major_id = 2)
+    AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and class_desc = 'ENDPOINT' and major_id = 3)
+    AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and class_desc = 'ENDPOINT' and major_id = 4)
+    AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and class_desc = 'ENDPOINT' and major_id = 5);
+  }
+
+  describe "Public Server Role should have only default permissions. List of permissions other than default" do
+    subject { sql_session.query(public_role_query).column('permission_name') }
+    it { should be_empty }
+  end
 end

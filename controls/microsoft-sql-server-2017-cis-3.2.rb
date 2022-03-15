@@ -1,9 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-3.2" do
-  title "Ensure CONNECT permissions on the 'guest' user is Revoked within 
-all SQL Server databases excluding the master, msdb and tempdb 
-(Automated)"
+  title "Ensure CONNECT permissions on the 'guest' user is Revoked within all SQL Server databases excluding the master, msdb and tempdb (Automated)"
   desc "Remove the right of the guest user to connect to SQL Server databases, except
 for master, 
 msdb, and tempdb."
@@ -68,9 +66,39 @@ on their need to access the information as a part of their responsibilities.
 v6 
 16 Account Monitoring and Control 
  
-Account Monitoring and Control 
- 
- 
- 
-"
+Account Monitoring and Control"
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  get_all_dbs_query = %{
+  SELECT name FROM master.sys.databases;
+  GO
+  }
+
+  databases = sql_session.query(get_all_dbs_query).column('name')
+
+  databases.each do |db| # map - when passes outnumber failures
+    unless input('excluded_dbs').include? db or ['master', 'tempdb', 'msdb'].include? db
+    # same input of excluded dbs or a different one?
+      guest_connect_query = %{
+        USE #{db};
+        GO
+        SELECT DB_NAME() AS DatabaseName, 'guest' AS Database_User, [permission_name], [state_desc]
+        FROM sys.database_permissions
+        WHERE [grantee_principal_id] = DATABASE_PRINCIPAL_ID('guest') AND [state_desc] LIKE 'GRANT%'
+        AND [permission_name] = 'CONNECT'
+        AND DB_NAME() NOT IN ('master','tempdb','msdb');
+      }
+
+      describe "#{db} db: Connect permissions on 'guest' should be revoked." do
+        subject { sql_session.query(guest_connect_query).rows[0] }
+        its('DatabaseName') { should cmp nil }
+      end
+    end
+  end
 end

@@ -78,9 +78,24 @@ controls will
 enforce the principle that only authorized individuals should have access to the
 
 information based on their need to access the information as a part of their 
-responsibilities. 
- 
- 
- 
-"
+responsibilities."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  win_builtin_query = %{
+    SELECT pr.[name], pe.[permission_name], pe.[state_desc] FROM sys.server_principals pr
+    JOIN sys.server_permissions pe
+    ON pr.principal_id = pe.grantee_principal_id
+    WHERE pr.name like 'BUILTIN%';
+    }
+
+  describe "Windows Built-in groups should not be SQL logins." do
+    subject { sql_session.query(win_builtin_query).rows[0] }
+    its('name') { should cmp nil }
+  end
 end

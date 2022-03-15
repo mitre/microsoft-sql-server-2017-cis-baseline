@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-3.5" do
-  title "Ensure the SQL Server‚Äôs MSSQL Service Account is Not an 
+  title "Ensure the SQL Server's MSSQL Service Account is Not an 
 Administrator (Manual)"
   desc "The service account and/or service SID used by the MSSQLSERVER service for a
 default 
@@ -37,7 +37,7 @@ was
 not originally used to set the service account."
   desc "impact", "The SQL Server Configuration Manager tool should always be used to change the
 SQL 
-Server‚Äôs service account. This will ensure that the account has the necessary
+Server's service account. This will ensure that the account has the necessary
 privileges. If 
 the service needs access to resources other than the standard Microsoft defined
 directories 
@@ -73,9 +73,9 @@ v6
 Minimize administrative privileges and only use administrative accounts when 
 they are required. Implement focused auditing on the use of administrative
 privileged 
-functions and monitor for anomalous behavior. 
- 
- 
- 
-"
+functions and monitor for anomalous behavior."
+
+  describe "Ensure the SQL Server's MSSQL Service Account is not an Administrator." do
+    skip "This control requires a manual review to ensure that SQL Server's MSSQL Service Account is not an Administrator."
+  end
 end

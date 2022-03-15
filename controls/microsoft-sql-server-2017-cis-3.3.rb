@@ -47,9 +47,34 @@ business owner.
 v6 
 16 Account Monitoring and Control 
  
-Account Monitoring and Control 
- 
- 
- 
-"
+Account Monitoring and Control"
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  get_all_dbs_query = %{
+  SELECT name FROM master.sys.databases;
+  GO
+  }
+
+  databases = sql_session.query(get_all_dbs_query).column('name')
+
+  databases.each do |db| # map - when passes outnumber failures
+    unless input('excluded_dbs').include? db
+      orphaned_users_query = %{
+        USE #{db};
+        GO
+        EXEC sp_change_users_login @Action='Report';
+      }
+
+      describe "#{db} db: Orphaned users should be removed." do
+        subject { sql_session.query(orphaned_users_query).rows[0] }
+        its('UserName') { should cmp nil }
+      end
+    end
+  end
 end

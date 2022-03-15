@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-3.11" do
-  title " Ensure the public role in the msdb database is not granted access 
+  title "Ensure the public role in the msdb database is not granted access 
 to SQL Agent proxies (Automated)"
   desc "The public database role contains every user in the msdb database. SQL Agent
 proxies 
@@ -73,9 +73,28 @@ controls will
 enforce the principle that only authorized individuals should have access to the
 
 information based on their need to access the information as a part of their 
-responsibilities. 
- 
- 
- 
-"
+responsibilities."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'),
+    db_name: 'msdb')
+
+  msdb_public_proxy_query = %{
+    SELECT sp.name AS proxy_name
+    FROM dbo.sysproxylogin spl
+    JOIN sys.database_principals dp
+    ON dp.sid = spl.sid
+    JOIN sysproxies sp
+    ON sp.proxy_id = spl.proxy_id
+    WHERE principal_id = USER_ID('public');
+    }
+
+  describe "Public role in the msdb db should not be granted access to SQL Agent proxies. proxy_name" do
+    subject { sql_session.query(msdb_public_proxy_query).column('proxy_name') }
+    it { should be_empty }
+  end
 end
