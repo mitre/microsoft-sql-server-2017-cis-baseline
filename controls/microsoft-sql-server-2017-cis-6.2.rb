@@ -55,9 +55,38 @@ authorized operating systems and software.
 v6 
 18 Application Software Security 
  
-Application Software Security 
- 
- 
- 
-"
+Application Software Security"
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  get_all_dbs_query = %{
+  SELECT name FROM master.sys.databases;
+  GO
+  }
+
+  databases = sql_session.query(get_all_dbs_query).column('name')
+
+  databases.each do |db| # map - when passes outnumber failures
+    unless input('excluded_dbs').include? db
+
+      clr_assembly_permissions_query = %{
+        USE #{db};
+        GO
+        SELECT name, permission_set_desc
+        FROM sys.assemblies
+        WHERE is_user_defined = 1
+        AND permission_set_desc != 'SAFE_ACCESS';
+      }
+
+      describe "#{db} db: 'CLR Assembly Permission Set' should be set to 'SAFE_ACCESS'. List of other permission sets" do
+        subject { sql_session.query(clr_assembly_permissions_query).rows[1] }
+        it { should be nil }
+      end
+    end
+  end
 end

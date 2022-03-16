@@ -56,9 +56,38 @@ All communication of sensitive information over less-trusted networks should be
 
 encrypted. Whenever information flows over a network with a lower trust level
 the 
-information should be encrypted. 
- 
- 
- 
-"
+information should be encrypted."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  get_all_dbs_query = %{
+  SELECT name FROM master.sys.databases;
+  GO
+  }
+
+  databases = sql_session.query(get_all_dbs_query).column('name')
+
+  databases.each do |db| # map - when passes outnumber failures
+    unless input('excluded_dbs').include? db
+
+      asymmetric_key_size_query = %{
+        USE #{db};
+        GO
+        SELECT db_name() AS Database_Name, name AS Key_Name FROM sys.asymmetric_keys
+        WHERE key_length < 2048
+        AND db_id() > 4;
+        GO
+      }
+
+      describe "#{db} db: 'Asymmetric Key Size should be set to 'greater than or equal to 2048'. List of other key sizes" do
+        subject { sql_session.query(asymmetric_key_size_query).rows[1] }
+        it { should be nil }
+      end
+    end
+  end
 end

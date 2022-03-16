@@ -66,11 +66,9 @@ v6
 9.1 Limit Open Ports Protocols and Services 
  
 Ensure that only ports protocols and services with validated business needs 
-are running on each system. 
- 
- 
- 
- 
- 
-"
+are running on each system."
+
+  describe "Ensure 'SQL Server Browser Service' is configured correctly." do
+    skip "This control requires a manual review to ensure that 'SQL Server Browser Service' is configured correctly."
+  end
 end

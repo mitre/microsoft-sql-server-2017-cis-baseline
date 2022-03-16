@@ -14,20 +14,13 @@ to users so that modifications to data must be done through stored procedures.
 Verify that 
 there's no SQL query in the application code produced by string concatenation."
   desc "fix", "The following steps can be taken to remediate SQL injection vulnerabilities: 
-‚Ä¢ 
-Review TSQL and application code for SQL Injection 
-‚Ä¢ 
-Only permit minimally privileged accounts to send user input to the server 
-‚Ä¢ 
-Minimize the risk of SQL injection attack by using parameterized commands and 
+- Review TSQL and application code for SQL Injection 
+- Only permit minimally privileged accounts to send user input to the server 
+- Minimize the risk of SQL injection attack by using parameterized commands and 
 stored procedures 
-‚Ä¢ 
-Reject user input containing binary data, escape sequences, and comment 
-characters 
-  
- 
-‚Ä¢ 
-Always validate user input and do not use it directly to build SQL statements"
+- Reject user input containing binary data, escape sequences, and comment 
+characters
+- Always validate user input and do not use it directly to build SQL statements"
   desc "impact", "Sanitize user input may require changes to application code or database object
 syntax. 
 These changes can require applications or databases to be taken temporarily
@@ -61,9 +54,9 @@ v6
 For in-house developed software ensure that explicit error checking is 
 performed and documented for all input including for size data type and
 acceptable 
-ranges or formats. 
- 
- 
- 
-"
+ranges or formats."
+
+  describe "Ensure Database and Application User Input is Sanitized." do
+    skip "This control requires a manual review to ensure that Database and Application User Input is Sanitized."
+  end
 end

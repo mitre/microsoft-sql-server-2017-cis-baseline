@@ -65,9 +65,38 @@ All communication of sensitive information over less-trusted networks should be
 
 encrypted. Whenever information flows over a network with a lower trust level
 the 
-information should be encrypted. 
- 
- 
- 
-"
+information should be encrypted."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  get_all_dbs_query = %{
+  SELECT name FROM master.sys.databases;
+  GO
+  }
+
+  databases = sql_session.query(get_all_dbs_query).column('name')
+
+  databases.each do |db| # map - when passes outnumber failures
+    unless input('excluded_dbs').include? db
+
+      encryption_algorithm_query = %{
+        USE #{db};
+        GO
+        SELECT db_name() AS Database_Name, name AS Key_Name
+        FROM sys.symmetric_keys
+        WHERE algorithm_desc NOT IN ('AES_128','AES_192','AES_256') AND db_id() > 4;
+        GO
+      }
+
+      describe "#{db} db: 'Symmetric Key encryption algorithm' should be set to 'AES_128' or higher. List of other algorithms" do
+        subject { sql_session.query(encryption_algorithm_query).rows[1] }
+        it { should be nil }
+      end
+    end
+  end
 end
