@@ -1,8 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-5.1" do
-  title "Ensure 'Maximum number of error log files' is set to greater than or 
-equal to '12' (Automated)"
+  title "Ensure 'Maximum number of error log files' is set to greater than or equal to '12' (Automated)"
   desc "SQL Server error log files must be protected from loss. The log files must be
 backed up 
 before they are overwritten. Retaining more error logs helps prevent loss from
@@ -91,9 +90,27 @@ Ensure that all systems that store logs have adequate storage space for the logs
 
 generated on a regular basis so that log files will not fill up between log
 rotation 
-intervals. The logs must be archived and digitally signed on a periodic basis. 
- 
- 
- 
-"
+intervals. The logs must be archived and digitally signed on a periodic basis."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  error_logs_num_query = %{
+    DECLARE @NumErrorLogs AS INT;
+    EXEC master.sys.xp_instance_regread
+    @rootkey = N'HKEY_LOCAL_MACHINE',
+    @key = N'SOFTWARE\\Microsoft\\Microsoft SQL Server\\MSSQLServer',
+    @value_name = N'NumErrorLogs',
+    @value = @NumErrorLogs OUTPUT;
+    SELECT ISNULL(@NumErrorLogs, -1) as error_log_num;
+  }
+
+  describe "'Maximum number of error log files' should be set to greater than or equal to '12'. The number" do
+    subject { sql_session.query(error_logs_num_query).rows[1].values[0].to_i }
+    it { should be >= 12 }
+  end
 end

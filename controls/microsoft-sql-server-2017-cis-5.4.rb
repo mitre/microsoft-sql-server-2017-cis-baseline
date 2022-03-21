@@ -1,8 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-5.4" do
-  title "Ensure 'SQL Server Audit' is set to capture both 'failed' and 
-'successful logins' (Automated)"
+  title "Ensure 'SQL Server Audit' is set to capture both 'failed' and 'successful logins' (Automated)"
   desc "SQL Server Audit is capable of capturing both failed and successful logins and
 writing them 
 to one of three places: the application event log, the security event log, or
@@ -44,15 +43,9 @@ FROM sys.server_audit_specification_details AS SAD
 WHERE SAD.audit_action_id IN ('CNAU', 'LGFL', 'LGSD'); 
 The result set should contain 3 rows, one for each of the following
 audit_action_names: 
-‚Ä¢ 
- 
-AUDIT_CHANGE_GROUP 
-‚Ä¢ 
- 
-FAILED_LOGIN_GROUP 
-‚Ä¢ 
- 
-SUCCESSFUL_LOGIN_GROUP 
+- AUDIT_CHANGE_GROUP 
+- FAILED_LOGIN_GROUP 
+- SUCCESSFUL_LOGIN_GROUP 
 Both the Audit and Audit specification should be enabled and the audited_result
 should 
 include both success and failure."
@@ -129,9 +122,54 @@ v6
 5.5 Log Failed Administrative Login Attempts 
  
 Configure systems to issue a log entry and alert on any unsuccessful login to 
-an administrative account. 
- 
- 
- 
-"
+an administrative account."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+  
+  sql_server_audit_query = %{
+    SELECT S.name AS 'Audit Name', CASE S.is_state_enabled
+    WHEN 1 THEN 'Y'
+    WHEN 0 THEN 'N' END AS 'Audit Enabled', S.type_desc AS 'Write Location', SA.name AS 'Audit Specification Name', CASE SA.is_state_enabled
+    WHEN 1 THEN 'Y'
+    WHEN 0 THEN 'N' END AS 'Audit Specification Enabled' , SAD.audit_action_name, SAD.audited_result
+    FROM sys.server_audit_specification_details AS SAD
+    JOIN sys.server_audit_specifications AS SA
+    ON SAD.server_specification_id = SA.server_specification_id JOIN sys.server_audits AS S
+    ON SA.audit_guid = S.audit_guid
+    WHERE SAD.audit_action_id IN ('CNAU', 'LGFL', 'LGSD');
+  }
+
+  describe "'SQL Server Audit' should be set to capture both 'failed' and 'successful logins'." do
+    subject { sql_session.query(sql_server_audit_query).rows[0] }
+    it { should_not cmp nil }
+  end
+  
+  describe "Audit action for Audit Change Group should be enabled. Value for" do
+    subject { sql_session.query(sql_server_audit_query).rows[0] }
+    its("audit_action_name") { should cmp "AUDIT_CHANGE_GROUP" }
+    its("audit enabled") { should cmp "Y" }
+    its("audit specification enabled") { should cmp "Y" }
+    its("audited_result") { should cmp "SUCCESS AND FAILURE" }
+  end
+
+  describe "Audit action for Failed Login Group should be enabled. Value for" do
+    subject { sql_session.query(sql_server_audit_query).rows[1] }
+    its("audit_action_name") { should cmp "FAILED_LOGIN_GROUP" }
+    its("audit enabled") { should cmp "Y" }
+    its("audit specification enabled") { should cmp "Y" }
+    its("audited_result") { should cmp "SUCCESS AND FAILURE" }
+  end
+
+  describe "Audit action for Successful Login Group should be enabled. Value for" do
+    subject { sql_session.query(sql_server_audit_query).rows[2] }
+    its("audit_action_name") { should cmp "SUCCESSFUL_LOGIN_GROUP" }
+    its("audit enabled") { should cmp "Y" }
+    its("audit specification enabled") { should cmp "Y" }
+    its("audited_result") { should cmp "SUCCESS AND FAILURE" }
+  end
 end

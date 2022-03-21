@@ -90,6 +90,26 @@ Control
 IG 1 IG 2 IG 3 
 flagging the use of the user s credentials from a computer other than computers
 on 
-which the user generally works. 
-"
+which the user generally works."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  login_auditing_query = %{
+    EXEC xp_loginconfig 'audit level';
+  }
+  describe.one do
+    describe "'Login Auditing' should capture at least login failures." do
+      subject { sql_session.query(login_auditing_query).rows[0] }
+      its('config_value') { should cmp "failure" }
+    end
+    describe "'Login Auditing' should capture at least login failures." do
+      subject { sql_session.query(login_auditing_query).rows[0] }
+      its('config_value') { should cmp "all" }
+    end
+  end
 end

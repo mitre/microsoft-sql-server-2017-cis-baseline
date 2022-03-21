@@ -1,8 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-5.2" do
-  title "Ensure 'Default Trace Enabled' Server Configuration Option is set to 
-'1' (Automated)"
+  title "Ensure 'Default Trace Enabled' Server Configuration Option is set to '1' (Automated)"
   desc "The default trace provides audit logging of database activity including account
 creations, 
 privilege elevation and execution of DBCC commands."
@@ -67,9 +66,24 @@ the
 Common Event Expression initiative. If systems cannot generate logs in a
 standardized 
 format log normalization tools can be deployed to convert logs into such a
-format. 
- 
- 
- 
-"
+format."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  default_trace_query = %{
+    SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+    FROM sys.configurations
+    WHERE name = 'default trace enabled';
+  }
+
+  describe "Default Trace should be enabled in server configuration." do
+    subject { sql_session.query(default_trace_query).rows[0] }
+    its('value_configured') { should cmp 1 }
+    its('value_in_use') { should cmp 1 }
+  end
 end
