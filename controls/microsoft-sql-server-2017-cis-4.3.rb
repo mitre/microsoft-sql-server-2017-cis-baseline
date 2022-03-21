@@ -1,8 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-4.3" do
-  title "Ensure 'CHECK_POLICY' Option is set to 'ON' for All SQL 
-Authenticated Logins (Automated)"
+  title "Ensure 'CHECK_POLICY' Option is set to 'ON' for All SQL Authenticated Logins (Automated)"
   desc "Applies the same password complexity policy used in Windows to passwords used
 inside 
 SQL Server."
@@ -62,9 +61,22 @@ system.
 v6 
 16 Account Monitoring and Control 
  
-Account Monitoring and Control 
- 
- 
- 
-"
+Account Monitoring and Control"
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  sql_auth_password_policy_query = %{
+    SELECT name, is_disabled FROM sys.sql_logins
+    WHERE is_policy_checked = 0;
+    }
+
+  describe "'CHECK_POLICY' Option should be set to 'ON' for All SQL Authenticated Logins. List of SQL logins that don't comply with the Windows secure password policy" do
+    subject { sql_session.query(sql_auth_password_policy_query).column('name') }
+    it { should be_empty }
+  end
 end

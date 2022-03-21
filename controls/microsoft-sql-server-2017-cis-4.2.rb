@@ -84,9 +84,29 @@ v6
 16.2 All Accounts Have A Monitored Expiration Date 
  
 Ensure that all accounts have an expiration date that is monitored and 
-enforced. 
- 
- 
- 
-"
+enforced."
+
+  sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'))
+
+  sysadmin_expiration_query = %{
+    SELECT l.[name], 'sysadmin membership' AS 'Access_Method' FROM sys.sql_logins AS l
+    WHERE IS_SRVROLEMEMBER('sysadmin',name) = 1
+    AND l.is_expiration_checked <> 1
+    UNION ALL
+    SELECT l.[name], 'CONTROL SERVER' AS 'Access_Method' FROM sys.sql_logins AS l
+    JOIN sys.server_permissions AS p
+    ON l.principal_id = p.grantee_principal_id
+    WHERE p.type = 'CL' AND p.state IN ('G', 'W')
+    AND l.is_expiration_checked <> 1;
+    }
+
+  describe "'CHECK_EXPIRATION' Option should be set to 'ON' for All SQL Authenticated Logins Within the Sysadmin Role. List of SQL logins without expiring passwords" do
+    subject { sql_session.query(sysadmin_expiration_query).column('name') }
+    it { should be_empty }
+  end
 end

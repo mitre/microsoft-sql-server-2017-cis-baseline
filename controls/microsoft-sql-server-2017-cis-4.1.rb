@@ -1,8 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-4.1" do
-  title "Ensure 'MUST_CHANGE' Option is set to 'ON' for All SQL 
-Authenticated Logins (Manual)"
+  title "Ensure 'MUST_CHANGE' Option is set to 'ON' for All SQL Authenticated Logins (Manual)"
   desc "Whenever this option is set to ON, SQL Server will prompt for an updated
 password the first 
 time the new or altered login is used."
@@ -60,9 +59,9 @@ consistent with administrative level accounts.
 v6 
 16 Account Monitoring and Control 
  
-Account Monitoring and Control 
- 
- 
- 
-"
+Account Monitoring and Control"
+
+  describe "Ensure 'MUST_CHANGE' Option is set to 'ON' for All SQL Authenticated Logins." do
+    skip "This control requires a manual review to ensure that 'MUST_CHANGE' Option is set to 'ON' for All SQL Authenticated Logins."
+  end
 end
