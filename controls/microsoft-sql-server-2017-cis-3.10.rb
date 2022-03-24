@@ -88,8 +88,12 @@ responsibilities."
     AND pr.[name] like CAST(SERVERPROPERTY('MachineName') AS nvarchar) + '%';
     }
 
-  describe "Windows Built-in groups should not be SQL logins. List of such logins" do
-    subject { sql_session.query(win_local_query).column('name') }
-    it { should be_empty }
+  noncompliant_groups = sql_session.query(win_local_query).column('name')
+
+  describe "Windows local groups" do
+    it "should not be SQL logins." do
+      failure_message = "These Windows local groups should not be SQL logins: #{noncompliant_groups.join(", ")}"
+      expect(noncompliant_groups).to be_empty, failure_message
+    end
   end
 end

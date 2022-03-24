@@ -94,8 +94,11 @@ responsibilities."
     WHERE pr.name like 'BUILTIN%';
     }
 
-  describe "Windows Built-in groups should not be SQL logins." do
-    subject { sql_session.query(win_builtin_query).rows[0] }
-    its('name') { should cmp nil }
+  noncompliant_groups = sql_session.query(win_builtin_query).column('name')
+  describe "Windows Built-in groups" do
+    it "should not be SQL logins." do
+      failure_message = "These Windows Built-in groups should not be SQL logins: #{noncompliant_groups.join(", ")}"
+      expect(noncompliant_groups).to be_empty, failure_message
+    end
   end
 end

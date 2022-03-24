@@ -93,8 +93,12 @@ responsibilities."
     WHERE principal_id = USER_ID('public');
     }
 
-  describe "Public role in the msdb db should not be granted access to SQL Agent proxies. proxy_name" do
-    subject { sql_session.query(msdb_public_proxy_query).column('proxy_name') }
-    it { should be_empty }
+  msb_public_proxies = sql_session.query(msdb_public_proxy_query).column('proxy_name')
+
+  describe "Public role in the msdb db" do
+    it "should not be granted access to SQL Agent proxies." do
+      failure_message = "Access to these proxies should not be given to the public role: #{msb_public_proxies.join(", ")}"
+      expect(msb_public_proxies).to be_empty, failure_message
+    end
   end
 end

@@ -51,3 +51,8 @@ inputs:
     description: 'State if the MS SQL Server instance is clustered'
     type: Boolean
     value: False
+
+  - name: max_error_logs
+    description: 'Enter the maximum number of error log files allowed'
+    type: numeric
+    value: 12
