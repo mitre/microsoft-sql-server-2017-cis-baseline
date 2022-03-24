@@ -90,8 +90,12 @@ Limitation and Control of Network Ports Protocols and Services"
     WHERE session_id = @@SPID
     }
 
-  describe 'SQL Server port' do
-    subject { sql_session.query(port_query).column('local_tcp_port')[0] }
-    it { should_not cmp 1433 }
+  port_used = sql_session.query(port_query).column('local_tcp_port')[0].to_i
+
+  describe "SQL Server" do
+    it "should not use the standard 1433 port" do
+      failure_message = "SQL Server should be configured to use non-standard ports and not 1433."
+      expect(port_used).not_to equal(1433), failure_message
+    end
   end
 end

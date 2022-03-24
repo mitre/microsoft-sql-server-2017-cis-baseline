@@ -85,8 +85,12 @@ functions and monitor for anomalous behavior."
     WHERE sid = 0x01 AND is_disabled = 0;
     }
 
-  describe '"sa" login account should be disabled.' do
-    subject { sql_session.query(sa_login_query).rows[0] }
-    its('name') { should cmp nil }
+  sysadmin = sql_session.query(sa_login_query).rows[0].name
+
+  describe 'The original login account' do
+    it "should be disabled." do
+      failure_message = "The '#{sysadmin}' login account needs to be disabled."
+      expect(sysadmin).to be_nil, failure_message
+    end
   end
 end

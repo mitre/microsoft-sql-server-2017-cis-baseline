@@ -55,7 +55,6 @@ enforce the principle that only authorized individuals should have access to the
 information based on their need to access the information as a part of their 
 responsibilities."
 
-
   sql_session = mssql_session(
     user: input('user'),
     password: input('password'),

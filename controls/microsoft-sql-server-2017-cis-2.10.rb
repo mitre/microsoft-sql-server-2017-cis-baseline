@@ -49,7 +49,6 @@ v6
 Ensure that only ports protocols and services with validated business needs 
 are running on each system."
 
-
   describe 'Unnecessary SQL Server Protocols should be disabled.' do
     skip 'This control requires a manual review to ensure that unnecessary SQL Server Protocols are set to be disabled.'
   end

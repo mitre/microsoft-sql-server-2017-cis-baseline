@@ -57,13 +57,17 @@ Application Software Security"
     port: input('port'))
 
   auto_close_query = %{
-      SELECT name, containment, containment_desc, is_auto_close_on
-      FROM sys.databases
-      WHERE is_auto_close_on = 1 and containment <> 0;
-    }
+    SELECT name, containment, containment_desc, is_auto_close_on
+    FROM sys.databases
+    WHERE is_auto_close_on = 1 and containment <> 0;
+  }
 
-  describe 'List of contained databases with AUTO_CLOSE enabled' do
-    subject { sql_session.query(auto_close_query).column('is_auto_close_on') }
-    it { should be_empty }
+  noncompliant_contained_dbs = sql_session.query(auto_close_query).column('name')
+
+  describe "Contained databases" do
+    it "should disable AUTO_CLOSE." do
+      failure_message = "#{noncompliant_contained_dbs.join(', ')} db(s) should set 'AUTO_CLOSE' to 'OFF'."
+      expect(noncompliant_contained_dbs).to be_empty, failure_message
+    end
   end
 end

@@ -78,8 +78,12 @@ functions and monitor for anomalous behavior."
     WHERE name = 'sa';
     }
 
-  describe 'Existing "sa" login' do
-    subject { sql_session.query(sa_login_query).rows[0] }
-    its('name') { should cmp nil }
+  sa_login = sql_session.query(sa_login_query).rows[0].name
+
+  describe "Login account with name 'sa'" do
+    it "should not exist" do
+      failure_message = "Rename and disable the 'sa' login account."
+      expect(sa_login).to be_nil, failure_message
+    end
   end
 end

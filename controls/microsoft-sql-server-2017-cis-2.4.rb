@@ -49,7 +49,6 @@ v6
  
 Application Software Security"
 
-
   sql_session = mssql_session(
     user: input('user'),
     password: input('password'),

@@ -68,6 +68,6 @@ Continuous Vulnerability Assessment and Remediation"
 
   describe "SQL Version" do
     subject { sql_session.query(query).column('version').uniq }
-    it { should match_array input('sql_version') }
+    it { should cmp >= input('approved_sql_version') }
   end
 end

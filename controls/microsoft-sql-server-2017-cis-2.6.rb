@@ -57,7 +57,6 @@ v6
 Ensure that only ports protocols and services with validated business needs 
 are running on each system."
 
-
   sql_session = mssql_session(
     user: input('user'),
     password: input('password'),

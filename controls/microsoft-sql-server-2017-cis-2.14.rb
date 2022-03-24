@@ -58,11 +58,16 @@ Controlled Use of Administration Privileges"
     port: input('port'))
 
   original_account_query = %{
-    SELECT name FROM sys.server_principals WHERE sid = 0x01;
+    SELECT name FROM sys.server_principals
+    WHERE sid = 0x01;
     }
 
-  describe 'Original login' do
-    subject { sql_session.query(original_account_query).rows[0] }
-    its('name') { should_not cmp 'sa' }
+  sysadmin = sql_session.query(original_account_query).rows[0].name
+
+  describe 'The original login account' do
+    it "should be renamed." do
+      failure_message = "The '#{sysadmin}' login account needs to be renamed to something other than 'sa'."
+      expect(sysadmin).not_to eq('sa'), failure_message
+    end
   end
 end

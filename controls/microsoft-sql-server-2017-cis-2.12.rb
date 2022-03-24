@@ -9,8 +9,7 @@ as hidden to prevent advertisement by the SQL Server Browser service."
   desc "rationale", "Designating production SQL Server instances as hidden leads to a more secure
 installation 
 because they cannot be enumerated. However, clustered instances may break if
-this option 
-is selected."
+this option is selected."
   desc "check", "Perform either the GUI or T-SQL method shown: 
 1.1.1.1 GUI Method 
  
@@ -105,8 +104,14 @@ Limitation and Control of Network Ports Protocols and Services"
     @value = @getValue OUTPUT; SELECT @getValue as value_configured;
     }
 
-  describe 'SQL Server Hide Instance' do
-    subject { sql_session.query(hide_instance_query).rows[0] }
-    its('value_configured') { should cmp 1 }
+  if input('clustered_instance') == true
+    describe "This control is not applicable to a clustered instance." do
+      skip "This control is not applicable to a clustered instance as it may prevent the cluster service from connecting to the SQL Server."
+    end
+  else
+    describe 'SQL Server Hide Instance' do
+      subject { sql_session.query(hide_instance_query).rows[0] }
+      its('value_configured') { should cmp 1 }
+    end
   end
 end

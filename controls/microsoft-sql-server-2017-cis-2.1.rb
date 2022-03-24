@@ -2,6 +2,41 @@
 
 control "microsoft-sql-server-2017-cis-2.1" do
   title "Ensure 'Ad Hoc Distributed Queries' Server Configuration Option is set to '0'"
+  desc "Enabling Ad Hoc Distributed Queries allows users to query data and execute statements on external data sources. This functionality should be disabled."
+  desc "rationale", "This feature can be used to remotely access and exploit vulnerabilities on remote SQL Server instances and to run unsafe Visual Basic for Application functions."
+  desc "check", "Run the following T-SQL command:
+  SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+  FROM sys.configurations
+  WHERE name = 'Ad Hoc Distributed Queries';
+  Both value columns must show 0."
+  desc "fix", "Run the following T-SQL command:
+  EXECUTE sp_configure 'show advanced options', 1; RECONFIGURE;
+  EXECUTE sp_configure 'Ad Hoc Distributed Queries', 0; RECONFIGURE;
+  GO
+  EXECUTE sp_configure 'show advanced options', 0; RECONFIGURE;"
+  desc "default_value", "0 (disabled)"
+  impact 0.5
+  ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/ad-hoc-distributed-queries-server-configuration-option'
+  tag nist: []
+  tag severity: "medium"
+  tag cis_controls: "
+  Controls Version
+  Control
+  IG 1
+  IG 2
+  IG 3
+  
+  v7
+  9.2 Ensure Only Approved Ports, Protocols and Services
+  Are Running
+  Ensure that only network ports, protocols, and services listening on a system
+  with validated business needs, are running on each system.
+      
+  
+  v6
+  9.1 Limit Open Ports, Protocols, and Services
+  Ensure that only ports, protocols, and services with validated business needs
+  are running on each system."
 
   sql_session = mssql_session(
     user: input('user'),
