@@ -9,10 +9,6 @@ version: 1.2.0
 inspec_version: ">= 4.0"
 
 inputs:
-  - name: approved_sql_version
-    description: 'Approved version expected to be installed'
-    required: True
-
   - name: user
     description: 'The username MSSQL DB Server'
     required: True
@@ -40,12 +36,9 @@ inputs:
     required: True
     sensitive: True
 
-  - name: excluded_dbs
-    description: 'Names of the databases excluded from being evaluated'
-    type: Array
-    value:
-      - 
-    sensitive: True
+  - name: approved_sql_version
+    description: 'Approved version expected to be installed'
+    required: True
 
   - name: clustered_instance
     description: 'State if the MS SQL Server instance is clustered'
@@ -56,6 +49,13 @@ inputs:
     description: 'Enter the maximum number of error log files allowed'
     type: numeric
     value: 12
+
+  - name: excluded_dbs
+    description: 'Names of the databases excluded from being evaluated'
+    type: Array
+    value:
+      - 
+    sensitive: True
 
   - name: encryption_disabled_dbs
     description: 'Names of the databases that are not required to be encrypted'
