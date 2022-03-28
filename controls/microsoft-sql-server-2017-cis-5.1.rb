@@ -111,6 +111,6 @@ intervals. The logs must be archived and digitally signed on a periodic basis."
 
   describe "'Maximum number of error log files' should be set to greater than or equal to '12'. The number" do
     subject { sql_session.query(error_logs_num_query).rows[1].values[0].to_i }
-    it { should be >= 12 }
+    it { should be >= input('max_error_logs') }
   end
 end

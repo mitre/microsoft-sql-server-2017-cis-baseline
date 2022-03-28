@@ -72,21 +72,54 @@ information should be encrypted."
 
   databases = sql_session.query(get_all_dbs_query).column('name')
 
-  databases.each do |db| # map - when passes outnumber failures
-    unless input('excluded_dbs').include? db
+  databases.each do |db|
+  
+    sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'),
+    db_name: db)
 
-      asymmetric_key_size_query = %{
-        USE #{db};
-        GO
-        SELECT db_name() AS Database_Name, name AS Key_Name FROM sys.asymmetric_keys
-        WHERE key_length < 2048
-        AND db_id() > 4;
-        GO
-      }
+    encryption_usage_query = %{
+      SELECT db_name() AS Database_Name, name AS Key_Name
+      FROM sys.asymmetric_keys
+    }
 
-      describe "#{db} db: 'Asymmetric Key Size should be set to 'greater than or equal to 2048'. List of other key sizes" do
-        subject { sql_session.query(asymmetric_key_size_query).rows[1] }
-        it { should be nil }
+    encryption_usage = sql_session.query(encryption_usage_query).column('key_name')
+
+    asymmetric_key_size_query = %{
+      SELECT db_name() AS Database_Name, name AS Key_Name
+      FROM sys.asymmetric_keys
+      WHERE key_length < 2048
+      AND db_id() > 4;
+      GO
+    }
+
+    noncompliant_keys = sql_session.query(asymmetric_key_size_query).column('key_name')
+
+    if input('excluded_dbs').include? db
+      describe "#{db} db: Database excluded from testing." do
+        skip "The #{db} database was excluded from testing by choice of the user."
+      end
+    elsif input('encryption_disabled_dbs').include? db
+      describe "#{db} db: Database listed as not requiring encryption." do
+        skip "The #{db} database was listed as not requiring encryption. Hence, it was excluded from testing by choice of the user."
+      end
+    elsif encryption_usage.empty?
+      describe "#{db} db: Asymmetric Key Size" do
+        it "should be set to 'greater than or equal to 2048'." do
+          failure_message = "No asymmetric keys found in this database."
+          expect(encryption_usage).not_to be_empty, failure_message
+        end
+      end
+    else
+      describe "#{db} db: Asymmetric Key Size" do
+        it "should be set to 'greater than or equal to 2048'." do
+          failure_message = "List of other key sizes: #{noncompliant_keys.join(", ")}"
+          expect(noncompliant_keys).to be_empty, failure_message
+        end
       end
     end
   end

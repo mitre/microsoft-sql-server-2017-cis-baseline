@@ -81,21 +81,53 @@ information should be encrypted."
 
   databases = sql_session.query(get_all_dbs_query).column('name')
 
-  databases.each do |db| # map - when passes outnumber failures
-    unless input('excluded_dbs').include? db
+  databases.each do |db|
 
-      encryption_algorithm_query = %{
-        USE #{db};
-        GO
-        SELECT db_name() AS Database_Name, name AS Key_Name
-        FROM sys.symmetric_keys
-        WHERE algorithm_desc NOT IN ('AES_128','AES_192','AES_256') AND db_id() > 4;
-        GO
-      }
+    sql_session = mssql_session(
+    user: input('user'),
+    password: input('password'),
+    host: input('host'),
+    instance: input('instance'),
+    port: input('port'),
+    db_name: db)
 
-      describe "#{db} db: 'Symmetric Key encryption algorithm' should be set to 'AES_128' or higher. List of other algorithms" do
-        subject { sql_session.query(encryption_algorithm_query).rows[1] }
-        it { should be nil }
+    encryption_usage_query = %{
+      SELECT db_name() AS Database_Name, name AS Key_Name
+      FROM sys.symmetric_keys
+    }
+
+    encryption_usage = sql_session.query(encryption_usage_query).column('key_name')
+
+    encryption_algorithm_query = %{
+      SELECT db_name() AS Database_Name, name AS Key_Name
+      FROM sys.symmetric_keys
+      WHERE algorithm_desc NOT IN ('AES_128','AES_192','AES_256') AND db_id() > 4;
+      GO
+    }
+
+    noncompliant_keys = sql_session.query(encryption_algorithm_query).column('key_name')
+
+    if input('excluded_dbs').include? db
+      describe "#{db} db: Database excluded from testing." do
+        skip "The #{db} database was excluded from testing by choice of the user."
+      end
+    elsif input('encryption_disabled_dbs').include? db
+      describe "#{db} db: Database listed as not requiring encryption." do
+        skip "The #{db} database was listed as not requiring encryption. Hence, it was excluded from testing by choice of the user."
+      end
+    elsif encryption_usage.empty?
+      describe "#{db} db: 'Symmetric Key encryption algorithm'" do
+        it "should be set to 'AES_128' or higher." do
+          failure_message = "No symmetric keys found in this database."
+          expect(encryption_usage).not_to be_empty, failure_message
+        end
+      end
+    else
+      describe "#{db} db: 'Symmetric Key encryption algorithm'" do
+        it "should be set to 'AES_128' or higher." do
+          failure_message = "List of other algorithms: #{noncompliant_keys.join(", ")}"
+          expect(noncompliant_keys).to be_empty, failure_message
+        end
       end
     end
   end

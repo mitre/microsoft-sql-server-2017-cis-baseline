@@ -56,3 +56,10 @@ inputs:
     description: 'Enter the maximum number of error log files allowed'
     type: numeric
     value: 12
+
+  - name: encryption_disabled_dbs
+    description: 'Names of the databases that are not required to be encrypted'
+    type: Array
+    value:
+      - 
+    sensitive: True

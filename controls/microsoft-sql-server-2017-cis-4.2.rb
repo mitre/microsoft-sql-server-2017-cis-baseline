@@ -1,8 +1,7 @@
 # encoding: UTF-8
 
 control "microsoft-sql-server-2017-cis-4.2" do
-  title "Ensure 'CHECK_EXPIRATION' Option is set to 'ON' for All SQL 
-Authenticated Logins Within the Sysadmin Role (Automated)"
+  title "Ensure 'CHECK_EXPIRATION' Option is set to 'ON' for All SQL Authenticated Logins Within the Sysadmin Role (Automated)"
   desc "Applies the same password expiration policy used in Windows to passwords used
 inside 
 SQL Server."
@@ -105,8 +104,12 @@ enforced."
     AND l.is_expiration_checked <> 1;
     }
 
-  describe "'CHECK_EXPIRATION' Option should be set to 'ON' for All SQL Authenticated Logins Within the Sysadmin Role. List of SQL logins without expiring passwords" do
-    subject { sql_session.query(sysadmin_expiration_query).column('name') }
-    it { should be_empty }
+  noncompliant_logins = sql_session.query(sysadmin_expiration_query).column('name')
+
+  describe "'CHECK_EXPIRATION' Option" do
+    it "should be set to 'ON' for All SQL Authenticated Logins Within the Sysadmin Role." do
+      failure_message = "List of SQL logins without expiring passwords: #{noncompliant_logins.join(", ")}"
+      expect(noncompliant_logins).to be_empty, failure_message
+    end
   end
 end

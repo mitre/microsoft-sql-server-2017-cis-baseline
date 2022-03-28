@@ -2,9 +2,7 @@
 
 control "microsoft-sql-server-2017-cis-4.3" do
   title "Ensure 'CHECK_POLICY' Option is set to 'ON' for All SQL Authenticated Logins (Automated)"
-  desc "Applies the same password complexity policy used in Windows to passwords used
-inside 
-SQL Server."
+  desc "Applies the same password complexity policy used in Windows to passwords used inside SQL Server."
   desc "rationale", "Ensure SQL authenticated login passwords comply with the secure password policy
 applied 
 by the Windows Server Benchmark so that they cannot be easily compromised via
@@ -75,8 +73,12 @@ Account Monitoring and Control"
     WHERE is_policy_checked = 0;
     }
 
-  describe "'CHECK_POLICY' Option should be set to 'ON' for All SQL Authenticated Logins. List of SQL logins that don't comply with the Windows secure password policy" do
-    subject { sql_session.query(sql_auth_password_policy_query).column('name') }
-    it { should be_empty }
+  noncompliant_logins = sql_session.query(sql_auth_password_policy_query).column('name')
+
+  describe "'CHECK_POLICY' Option" do
+    it "should be set to 'ON' for All SQL Authenticated Logins." do
+      failure_message = "List of SQL logins that don't comply with the Windows secure password policy: #{noncompliant_logins.join(", ")}"
+      expect(noncompliant_logins).to be_empty, failure_message
+    end
   end
 end
