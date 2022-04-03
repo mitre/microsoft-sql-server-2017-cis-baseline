@@ -46,7 +46,7 @@ inputs:
     value: False
 
   - name: max_error_logs
-    description: 'Enter the maximum number of error log files allowed'
+    description: 'Enter the maximum number of error log files allowed (CIS required value is 12; this value is not hard-coded to allow for tailoring this profile to organizational requirements)'
     type: numeric
     value: 12
 
