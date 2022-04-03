@@ -55,27 +55,12 @@ will be chosen randomly at each SQL Server start up."
 named instances use dynamic ports."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/configure-a-server-to-listen-on-a-specific-tcp-port'
-  tag nist: []
+  tag nist: ['SC-7', 'CM-7 (1)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-9.2 Ensure Only Approved Ports Protocols and Services 
-Are Running 
- 
-Ensure that only network ports protocols and services listening on a system 
-with validated business needs are running on each system. 
- 
- 
- 
-v6 
-9 Limitation and Control of Network Ports Protocols and 
-Services 
- 
-Limitation and Control of Network Ports Protocols and Services"
+  tag cis_controls: [
+    { '6' => ['9'] },
+    { '7' => ['9.2'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

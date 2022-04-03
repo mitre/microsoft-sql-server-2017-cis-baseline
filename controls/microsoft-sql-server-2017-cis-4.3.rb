@@ -40,26 +40,12 @@ existing weak passwords to be changed."
   desc "default_value", "CHECK_POLICY is ON"
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy'
-  tag nist: []
+  tag nist: ['AC-2', 'IA-5 (1)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-4.4 Use Unique Passwords 
- 
-Where multi-factor authentication is not supported such as local administrator 
-root or service accounts accounts will use passwords that are unique to that 
-system. 
- 
- 
- 
-v6 
-16 Account Monitoring and Control 
- 
-Account Monitoring and Control"
+  tag cis_controls: [
+    { '6' => ['16'] },
+    { '7' => ['4.4'] }
+  ] 
 
   sql_session = mssql_session(
     user: input('user'),

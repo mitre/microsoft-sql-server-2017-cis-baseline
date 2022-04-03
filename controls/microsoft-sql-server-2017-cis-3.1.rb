@@ -28,24 +28,12 @@ control "microsoft-sql-server-2017-cis-3.1" do
   desc "default_value", "Windows Authentication Mode"
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/server-properties-security-page'
-  tag nist: []
+  tag nist: ['AC-2']
   tag severity: "medium"
-  tag cis_controls: " 
-  Controls Version
-  Control
-  IG 1
-  IG 2
-  IG 3
-  
-  v7
-  16.2 Configure Centralized Point of Authentication Configure access for all accounts through as few centralized points of
-  authentication as possible, including network, security, and cloud systems.
-    
-  
-  v6
-  16.9 Configure Account Access Centrally
-  Configure access for all accounts through a centralized point of authentication, for
-  example Active Directory or LDAP. Configure network and security devices for centralized authentication as well."
+  tag cis_controls: [
+    { '6' => ['16.9'] },
+    { '7' => ['16.2'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

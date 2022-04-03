@@ -64,26 +64,12 @@ CHECK_EXPIRATION is OFF by default when using T-SQL CREATE LOGIN syntax without
 specifying the CHECK_EXPIRATION option."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-2017'
-  tag nist: []
+  tag nist: ['IA-4', 'AC-2']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-16.10 Ensure All Accounts Have An Expiration Date 
- 
-Ensure that all accounts have an expiration date that is monitored and 
-enforced. 
- 
- 
- 
-v6 
-16.2 All Accounts Have A Monitored Expiration Date 
- 
-Ensure that all accounts have an expiration date that is monitored and 
-enforced."
+  tag cis_controls: [
+    { '6' => ['16.2'] },
+    { '7' => ['16.10'] }
+  ] 
 
   sql_session = mssql_session(
     user: input('user'),

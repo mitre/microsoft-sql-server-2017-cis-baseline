@@ -24,36 +24,12 @@ database in which it is required to be ON."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/security/trustworthy-database-property'
   ref 'https://support.microsoft.com/it-it/help/2183687/guidelines-for-using-the-trustworthy-database-setting-in-sql-server'
-  tag nist: []
+  tag nist: ['AC-3 (3)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-14.6 Protect Information through Access Control Lists 
- 
-Protect all information stored on systems with file system network share claims 
-
-application or database specific access control lists. These controls will
-enforce the 
-principle that only authorized individuals should have access to the information
-based 
-on their need to access the information as a part of their responsibilities. 
- 
- 
- 
-v6 
-14.4 Protect Information With Access Control Lists 
- 
-All information stored on systems shall be protected with file system network 
-share claims application or database specific access control lists. These
-controls will 
-enforce the principle that only authorized individuals should have access to the
-
-information based on their need to access the information as a part of their 
-responsibilities."
+  tag cis_controls: [
+    { '6' => ['14.4'] },
+    { '7' => ['14.6'] }
+  ] 
 
   sql_session = mssql_session(
     user: input('user'),

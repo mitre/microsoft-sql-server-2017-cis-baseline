@@ -29,25 +29,12 @@ ALTER DATABASE <database_name> SET AUTO_CLOSE OFF;"
 is_auto_close_on = 0."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/databases/security-best-practices-with-contained-databases'
-  tag nist: []
+  tag nist: ['SI-1', 'CM-6']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-5.1 Establish Secure Configurations 
- 
-Maintain documented standard security configuration standards for all 
-authorized operating systems and software. 
- 
- 
- 
-v6 
-18 Application Software Security 
- 
-Application Software Security"
+  tag cis_controls: [
+    { '6' => ['18'] },
+    { '7' => ['5.1'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

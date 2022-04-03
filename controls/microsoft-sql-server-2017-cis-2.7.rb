@@ -49,27 +49,12 @@ installations. Disable it for standalone installations where not required."
   desc "default_value", "By default, this option is disabled (0), only local connections may use the DAC."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/remote-admin-connections-server-configuration-option'
-  tag nist: []
+  tag nist: ['CM-7 (1)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-9.2 Ensure Only Approved Ports Protocols and Services 
-Are Running 
- 
-Ensure that only network ports protocols and services listening on a system 
-with validated business needs are running on each system. 
- 
- 
- 
-v6 
-9.1 Limit Open Ports Protocols and Services 
- 
-Ensure that only ports protocols and services with validated business needs 
-are running on each system."
+  tag cis_controls: [
+    { '6' => ['9.1'] },
+    { '7' => ['9.2'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

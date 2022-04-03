@@ -25,29 +25,12 @@ the change to take effect."
 editions."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/enable-or-disable-a-server-network-protocol'
-  tag nist: []
+  tag nist: ['CM-7 (1)']
   tag severity: "medium"
-  tag cis_controls: " 
- 
- 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-9.2 Ensure Only Approved Ports Protocols and Services 
-Are Running 
- 
-Ensure that only network ports protocols and services listening on a system 
-with validated business needs are running on each system. 
- 
- 
- 
-v6 
-9.1 Limit Open Ports Protocols and Services 
- 
-Ensure that only ports protocols and services with validated business needs 
-are running on each system."
+  tag cis_controls: [
+    { '6' => ['9.1'] },
+    { '7' => ['9.2'] }
+  ]
 
   describe 'Unnecessary SQL Server Protocols should be disabled.' do
     skip 'This control requires a manual review to ensure that unnecessary SQL Server Protocols are set to be disabled.'

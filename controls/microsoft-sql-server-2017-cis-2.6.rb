@@ -35,8 +35,12 @@ this feature as soon as possible. Use sp_addlinkedserver instead."
   desc "default_value", "By default, this option is enabled (1)."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/configure-the-remote-access-server-configuration-option'
-  tag nist: []
+  tag nist: ['CM-7 (1)']
   tag severity: "medium"
+  tag cis_controls: [
+    { '6' => ['9.1'] },
+    { '7' => ['9.2'] }
+  ] 
   tag cis_controls: " 
 Controls 
 Version 

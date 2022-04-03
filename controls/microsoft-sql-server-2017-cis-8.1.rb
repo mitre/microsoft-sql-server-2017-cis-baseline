@@ -46,27 +46,12 @@ Server Browser
 service to be configured as Automatic for startup."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-browser-service-database-engine-and-ssas'
-  tag nist: []
+  tag nist: ['CM-7 (1)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-9.2 Ensure Only Approved Ports Protocols and Services 
-Are Running 
- 
-Ensure that only network ports protocols and services listening on a system 
-with validated business needs are running on each system. 
- 
- 
- 
-v6 
-9.1 Limit Open Ports Protocols and Services 
- 
-Ensure that only ports protocols and services with validated business needs 
-are running on each system."
+  tag cis_controls: [
+    { '6' => ['9.1'] },
+    { '7' => ['9.2'] }
+  ]
 
   describe "Ensure 'SQL Server Browser Service' is configured correctly." do
     skip "This control requires a manual review to ensure that 'SQL Server Browser Service' is configured correctly."

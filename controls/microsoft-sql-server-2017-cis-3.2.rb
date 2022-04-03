@@ -43,30 +43,12 @@ permission by
 default."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/policy-based-management/guest-permissions-on-user-databases'
-  tag nist: []
+  tag nist: ['AC-2', 'AC-3 (3)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-14.6 Protect Information through Access Control Lists 
- 
-Protect all information stored on systems with file system network share claims 
-
-application or database specific access control lists. These controls will
-enforce the 
-principle that only authorized individuals should have access to the information
-based 
-on their need to access the information as a part of their responsibilities. 
- 
- 
- 
-v6 
-16 Account Monitoring and Control 
- 
-Account Monitoring and Control"
+  tag cis_controls: [
+    { '6' => ['16'] },
+    { '7' => ['14.6'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

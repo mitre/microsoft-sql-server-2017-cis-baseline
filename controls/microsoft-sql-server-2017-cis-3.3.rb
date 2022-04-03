@@ -27,27 +27,12 @@ GO
 DROP USER <username>;"
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/sql-server/failover-clusters/troubleshoot-orphaned-users-sql-server'
-  tag nist: []
+  tag nist: ['AC-2']
   tag severity: "medium"
-  tag cis_controls: " 
- 
- 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-16.8 Disable Any Unassociated Accounts 
- 
-Disable any account that cannot be associated with a business process or 
-business owner. 
- 
- 
- 
-v6 
-16 Account Monitoring and Control 
- 
-Account Monitoring and Control"
+  tag cis_controls: [
+    { '6' => ['16'] },
+    { '7' => ['16.8'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

@@ -49,31 +49,12 @@ Administrators
 group."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/configure-windows-service-accounts-and-permissions'
-  tag nist: []
+  tag nist: ['AC-6 (9)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-4.3 Ensure the Use of Dedicated Administrative Accounts 
- 
-Ensure that all users with administrative account access use a dedicated or 
-secondary account for elevated activities. This account should only be used for 
-
-administrative activities and not internet browsing email or similar activities.
-
- 
- 
- 
-v6 
-5.1 Minimize And Sparingly Use Administrative Privileges 
- 
-Minimize administrative privileges and only use administrative accounts when 
-they are required. Implement focused auditing on the use of administrative
-privileged 
-functions and monitor for anomalous behavior."
+  tag cis_controls: [
+    { '6' => ['5.1'] },
+    { '7' => ['4.3'] }
+  ]
 
   describe "Ensure the SQL Server's SQLAgent Service Account is not an Administrator." do
     skip "This control requires a manual review to ensure that SQL Server's SQLAgent Service Account is not an Administrator."

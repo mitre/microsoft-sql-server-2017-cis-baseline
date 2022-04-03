@@ -40,29 +40,12 @@ GO"
   desc "default_value", "By default, this option is Enabled (1)."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/clr-strict-security?view=sql-server-2017'
-  tag nist: []
+  tag nist: ['CM-7', 'CM-6']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-18.9 Separate Production and Non-Production Systems 
- 
-Maintain separate environments for production and nonproduction systems. 
-Developers should not have unmonitored access to production environments. 
- 
- 
- 
-v7 
-18.11 Use Standard Hardening Configuration Templates for 
-Databases 
- 
-For applications that rely on a database use standard hardening configuration 
-templates. All systems that are part of critical business processes should also
-be 
-tested."
+  tag cis_controls: [
+    { '6' => ['18.9'] },
+    { '7' => ['18.11'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

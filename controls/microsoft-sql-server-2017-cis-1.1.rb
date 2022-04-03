@@ -34,24 +34,12 @@ https://docs.microsoft.com/en-us/sql/database-engine/install-windows/latest-upda
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/install-windows/latest-updates-for-microsoft-sql-server?view=sql-server-2017'
   ref 'https://support.microsoft.com/en-us/help/4041553/sql-server-service-packs-are-discontinued-starting-from-sql-server'
-  tag nist: []
+  tag nist: ['RA-5', 'CM-7 (5)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-2.2 Ensure Software is Supported by Vendor 
- 
-Ensure that only software applications or operating systems currently supported 
-by the software s vendor are added to the organization s authorized software 
-inventory. Unsupported software should be tagged as unsupported in the inventory system. 
-
-v6 
-4 Continuous Vulnerability Assessment and Remediation 
- 
-Continuous Vulnerability Assessment and Remediation"
+  tag cis_controls: [
+    { '6' => ['4'] },
+    { '7' => ['2.2'] }
+  ] 
 
   sql_session = mssql_session(
     user: input('user'),

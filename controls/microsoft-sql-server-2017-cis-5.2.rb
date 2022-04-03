@@ -26,47 +26,12 @@ RECONFIGURE;"
   desc "default_value", "1 (on)"
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/default-trace-enabled-server-configuration-option'
-  tag nist: []
+  tag nist: ['AU-4', 'AU-12']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-6.2 Activate audit logging 
- 
-Ensure that local logging has been enabled on all systems and networking
-devices. 
- 
- 
- 
-v7 
-6.3 Enable Detailed Logging 
- 
-Enable system logging to include detailed information such as an event source
-date 
-user timestamp source addresses destination addresses and other useful elements.
-
- 
- 
- 
-v6 
-6.2 Ensure Audit Log Settings Support Appropriate Log Entry 
-Formatting 
- 
-Validate audit log settings for each hardware device and the software installed
-on it 
-ensuring that logs include a date timestamp source addresses destination
-addresses 
-and various other useful elements of each packet and or transaction. Systems
-should 
-record logs in a standardized format such as syslog entries or those outlined by
-the 
-Common Event Expression initiative. If systems cannot generate logs in a
-standardized 
-format log normalization tools can be deployed to convert logs into such a
-format."
+  tag cis_controls: [
+    { '6' => ['6.3'] },
+    { '7' => ['6.2'] }
+  ] 
 
   sql_session = mssql_session(
     user: input('user'),

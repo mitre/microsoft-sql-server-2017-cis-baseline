@@ -55,37 +55,12 @@ GO"
   desc "default_value", "By default, this option is disabled (0)."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/t-sql/statements/create-assembly-transact-sql'
-  tag nist: []
+  tag nist: ['CM-6', 'CM-7']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-18.11 Use Standard Hardening Configuration Templates for 
-Databases 
- 
-For applications that rely on a database use standard hardening configuration 
- 
- 
- 
- 
- 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-templates. All systems that are part of critical business processes should also
-be 
-tested. 
-v6 
-18.9 Sanitize Deployed Software Of Development Artifacts 
- 
-For in-house developed applications ensure that development artifacts sample 
-data and scripts unused libraries components debug code or tools are not
-included 
-in the deployed software or accessible in the production environment."
+  tag cis_controls: [
+    { '6' => ['18.9'] },
+    { '7' => ['18.11'] }
+  ] 
 
   sql_session = mssql_session(
     user: input('user'),

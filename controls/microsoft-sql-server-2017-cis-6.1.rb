@@ -30,32 +30,13 @@ environment
 before production implementation."
   impact 0.5
   ref 'https://owasp.org/www-community/attacks/SQL_Injection'
-  tag nist: []
+  tag nist: ['SI-10']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-18.2 Ensure Explicit Error Checking is Performed for All In-
-house Developed Software 
- 
-For in-house developed software ensure that explicit error checking is 
-performed and documented for all input including for size data type and
-acceptable 
-ranges or formats. 
- 
- 
- 
-v6 
-18.3 Sanitize Input For In-house Software 
- 
-For in-house developed software ensure that explicit error checking is 
-performed and documented for all input including for size data type and
-acceptable 
-ranges or formats."
-
+  tag cis_controls: [
+    { '6' => ['18.3'] },
+    { '7' => ['18.2'] }
+  ]
+  
   describe "Ensure Database and Application User Input is Sanitized." do
     skip "This control requires a manual review to ensure that Database and Application User Input is Sanitized."
   end

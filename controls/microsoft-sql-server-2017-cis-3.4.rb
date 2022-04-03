@@ -29,27 +29,13 @@ contained
 databases."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/databases/security-best-practices-with-contained-databases'
-  tag nist: []
+  tag nist: ['IA-2', 'AC-2']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-16.2 Configure Centralized Point of Authentication 
- 
-Configure access for all accounts through as few centralized points of 
-authentication as possible including network security and cloud systems. 
- 
- 
- 
-v6 
-16.12 Use Long Passwords For All User Accounts 
- 
-Where multi-factor authentication is not supported user accounts shall be 
-required to use long passwords on the system longer than 14 characters."
-
+  tag cis_controls: [
+    { '6' => ['16.12'] },
+    { '7' => ['16.2'] }
+  ]
+  
   sql_session = mssql_session(
     user: input('user'),
     password: input('password'),

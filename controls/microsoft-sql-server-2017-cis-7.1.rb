@@ -43,29 +43,12 @@ compression, you should compress data before encrypting it."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-symmetric-key-transact-sql'
   ref 'http://support.microsoft.com/kb/2162020'
-  tag nist: []
+  tag nist: ['SC-8']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-14.4 Encrypt All Sensitive Information in Transit 
- 
-Encrypt all sensitive information in transit. 
- 
- 
- 
-v6 
-14.2 Encrypt All Sensitive Information Over Less-trusted 
-Networks 
- 
-All communication of sensitive information over less-trusted networks should be 
-
-encrypted. Whenever information flows over a network with a lower trust level
-the 
-information should be encrypted."
+  tag cis_controls: [
+    { '6' => ['14.2'] },
+    { '7' => ['14.4'] }
+  ] 
 
   sql_session = mssql_session(
     user: input('user'),

@@ -49,29 +49,12 @@ install, the default for the sa login is enabled."
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-server-principals-transact-sql'
   ref 'https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-login-transact-sql'
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/security/choose-an-authentication-mode'
-  tag nist: []
+  tag nist: ['AC-6 (9)', 'AC-2']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-16.8 Disable Any Unassociated Accounts 
- 
-Disable any account that cannot be associated with a business process or
-business 
-owner. 
- 
- 
- 
-v6 
-5.1 Minimize And Sparingly Use Administrative Privileges 
- 
-Minimize administrative privileges and only use administrative accounts when 
-they are required. Implement focused auditing on the use of administrative
-privileged 
-functions and monitor for anomalous behavior."
+  tag cis_controls: [
+    { '6' => ['5.1'] },
+    { '7' => ['16.8'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

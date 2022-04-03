@@ -38,33 +38,12 @@ using TCP/IP instead of Named Pipes). Additional hardware and operating system
 licenses 
 may be required to make these architectural changes."
   impact 0.5
-  tag nist: []
+  tag nist: ['SI-10', 'SC-32']
   tag severity: "medium"
-  tag cis_controls: " 
- 
- 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-2.10 Physically or Logically Segregate High Risk 
-Applications 
- 
-Physically or logically segregated systems should be used to isolate and run 
-software that is required for business operations but incur higher risk for the 
-
-organization. 
- 
- 
- 
-v6 
-9.5 Operate Critical Services On Dedicated Hosts i.e. DNS 
-Mail Web Database 
- 
-Operate critical services on separate physical or logical host machines such as 
-
-DNS file mail web and database servers."
+  tag cis_controls: [
+    { '6' => ['9.6'] },
+    { '7' => ['2.10'] }
+  ]
 
   describe 'SQL Server software should be installed on a dedicated server.' do
     skip 'This control requires a manual review to ensure that SQL Server software is installed on a dedicated server.'

@@ -102,27 +102,12 @@ logins, which might prove of use for forensics."
   desc "default_value", "By default, there are no audit object tracking login events."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/security/auditing/create-a-server-audit-and-server-audit-specification'
-  tag nist: []
+  tag nist: ['AU-2']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-4.9 Log and Alert on Unsuccessful Administrative 
-Account Login 
- 
-Configure systems to issue a log entry and alert on unsuccessful logins to an 
-administrative account. 
- 
- 
- 
-v6 
-5.5 Log Failed Administrative Login Attempts 
- 
-Configure systems to issue a log entry and alert on any unsuccessful login to 
-an administrative account."
+  tag cis_controls: [
+    { '6' => ['5.5'] },
+    { '7' => ['4.9'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

@@ -66,8 +66,12 @@ SQL Server restarts or sp_cycle_errorlog is executed."
 retained by default."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/scm-services-configure-sql-server-error-logs'
-  tag nist: []
+  tag nist: ['AU-4']
   tag severity: "medium"
+  tag cis_controls: [
+    { '6' => ['6.3'] },
+    { '7' => ['6.4'] }
+  ] 
   tag cis_controls: " 
 Controls 
 Version 

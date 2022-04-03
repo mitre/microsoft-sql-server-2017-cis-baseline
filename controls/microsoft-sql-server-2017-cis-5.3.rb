@@ -55,43 +55,13 @@ Changing the setting requires a restart of the SQL Server service."
   desc "default_value", "By default, only failed login attempts are captured."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/server-properties-security-page'
-  tag nist: []
+  tag nist: ['AC-2 (12)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-16.13 Alert on Account Login Behavior Deviation 
- 
-Alert when users deviate from normal login behavior such as time-of-day 
-workstation location and duration. 
- 
- 
- 
-v6 
-16.10 Profile User Account Usage And Monitor For Anomalies 
- 
-Profile each user s typical account usage by determining normal time-of-day
-access 
-and access duration. Reports should be generated that indicate users who have
-logged 
-in during unusual hours or have exceeded their normal login duration. This
-includes 
- 
- 
- 
- 
- 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-flagging the use of the user s credentials from a computer other than computers
-on 
-which the user generally works."
-
+  tag cis_controls: [
+    { '6' => ['16.10'] },
+    { '7' => ['16.13'] }
+  ]
+  
   sql_session = mssql_session(
     user: input('user'),
     password: input('password'),

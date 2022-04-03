@@ -28,26 +28,12 @@ RECONFIGURE;"
   desc "default_value", "By default, this option is disabled (0)."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/relational-databases/database-mail/database-mail'
-  tag nist: []
+  tag nist: ['SI-1', 'CM-7 (1)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-9.2 Ensure Only Approved Ports Protocols and Services 
-Are Running 
- 
-Ensure that only network ports protocols and services listening on a system 
-with validated business needs are running on each system. 
- 
- 
- 
-v6 
-18 Application Software Security 
- 
-Application Software Security"
+  tag cis_controls: [
+    { '6' => ['18'] },
+    { '7' => ['9.2'] }
+  ]
 
   sql_session = mssql_session(
     user: input('user'),

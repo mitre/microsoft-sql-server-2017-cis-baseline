@@ -41,25 +41,12 @@ CHECK_EXPIRATION = ON."
   impact 0.5
   ref 'https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-login-transact-sql'
   ref 'https://docs.microsoft.com/en-us/sql/t-sql/statements/create-login-transact-sql'
-  tag nist: []
+  tag nist: ['AC-2', 'IA-5 (5)']
   tag severity: "medium"
-  tag cis_controls: " 
-Controls 
-Version 
-Control 
-IG 1 IG 2 IG 3 
-v7 
-4.2 Change Default Passwords 
- 
-Before deploying any new asset change all default passwords to have values 
-consistent with administrative level accounts. 
- 
- 
- 
-v6 
-16 Account Monitoring and Control 
- 
-Account Monitoring and Control"
+  tag cis_controls: [
+    { '6' => ['16'] },
+    { '7' => ['4.2'] }
+  ] 
 
   describe "Ensure 'MUST_CHANGE' Option is set to 'ON' for All SQL Authenticated Logins." do
     skip "This control requires a manual review to ensure that 'MUST_CHANGE' Option is set to 'ON' for All SQL Authenticated Logins."
