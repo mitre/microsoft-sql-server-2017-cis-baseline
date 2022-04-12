@@ -61,42 +61,52 @@ default."
   SELECT name FROM master.sys.databases;
   GO
   }
-
   databases = sql_session.query(get_all_dbs_query).column('name')
 
+  inaccessible_dbs_query = %{
+    SELECT name FROM master.sys.databases
+    WHERE HAS_DBACCESS([name]) = 0;
+  }
+  inaccessible_dbs = sql_session.query(inaccessible_dbs_query).column('name')
+
   databases.each do |db|
-
-    sql_session = mssql_session(
-    user: input('user'),
-    password: input('password'),
-    host: input('host'),
-    instance: input('instance'),
-    port: input('port'),
-    db_name: db)
-
-    guest_connect_query = %{
-      SELECT DB_NAME() AS DatabaseName, 'guest' AS Database_User, [permission_name], [state_desc]
-      FROM sys.database_permissions
-      WHERE [grantee_principal_id] = DATABASE_PRINCIPAL_ID('guest') AND [state_desc] LIKE 'GRANT%'
-      AND [permission_name] = 'CONNECT'
-      AND DB_NAME() NOT IN ('master','tempdb','msdb');
-    }
-
-    noncompliant_guest = sql_session.query(guest_connect_query).column('database_user')
-
     if input('excluded_dbs').include? db
       describe "#{db} db: Database excluded from testing." do
         skip "The #{db} database was excluded from testing by choice of the user."
       end
-    elsif ['master','tempdb','msdb'].include? db
-      describe "#{db} db: Not applicable." do
-        skip "This control is not applicable to the #{db} database."
+    elsif inaccessible_dbs.include? db
+      describe "#{db} db: Database is not accessible to this user." do
+        skip "The #{db} database is not accessible to this user."
       end
     else
-      describe "#{db} db: Connect permissions on 'guest'" do
-        it "should be revoked." do
-          failure_message = "The right of '#{noncompliant_guest.join(", ")}' user(s) to connect to SQL Server databases needs to be removed."
-          expect(noncompliant_guest).to be_empty, failure_message
+      sql_session = mssql_session(
+      user: input('user'),
+      password: input('password'),
+      host: input('host'),
+      instance: input('instance'),
+      port: input('port'),
+      db_name: db)
+
+      guest_connect_query = %{
+        SELECT DB_NAME() AS DatabaseName, 'guest' AS Database_User, [permission_name], [state_desc]
+        FROM sys.database_permissions
+        WHERE [grantee_principal_id] = DATABASE_PRINCIPAL_ID('guest') AND [state_desc] LIKE 'GRANT%'
+        AND [permission_name] = 'CONNECT'
+        AND DB_NAME() NOT IN ('master','tempdb','msdb');
+      }
+
+      noncompliant_guest = sql_session.query(guest_connect_query).column('database_user')
+
+      if ['master','tempdb','msdb'].include? db
+        describe "#{db} db: Not applicable." do
+          skip "This requirement is not applicable to the #{db} database."
+        end
+      else
+        describe "#{db} db: Connect permissions on 'guest'" do
+          it "should be revoked." do
+            failure_message = "The right of '#{noncompliant_guest.join(", ")}' user(s) to connect to SQL Server databases needs to be removed."
+            expect(noncompliant_guest).to be_empty, failure_message
+          end
         end
       end
     end

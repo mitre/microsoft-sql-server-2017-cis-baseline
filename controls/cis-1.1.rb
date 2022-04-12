@@ -55,7 +55,7 @@ https://docs.microsoft.com/en-us/sql/database-engine/install-windows/latest-upda
     }
 
   describe "SQL Version" do
-    subject { sql_session.query(query).column('version').uniq }
-    it { should cmp >= input('approved_sql_version') }
+    subject { sql_session.query(query).rows[0] }
+    its('version') { should cmp >= input('approved_sql_version') }
   end
 end

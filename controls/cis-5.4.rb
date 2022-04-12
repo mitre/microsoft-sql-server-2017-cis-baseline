@@ -129,32 +129,36 @@ logins, which might prove of use for forensics."
     WHERE SAD.audit_action_id IN ('CNAU', 'LGFL', 'LGSD');
   }
 
-  describe "'SQL Server Audit' should be set to capture both 'failed' and 'successful logins'." do
-    subject { sql_session.query(sql_server_audit_query).rows[0] }
-    it { should_not cmp nil }
-  end
-  
-  describe "Audit action for Audit Change Group should be enabled. Value for" do
-    subject { sql_session.query(sql_server_audit_query).rows[0] }
-    its("audit_action_name") { should cmp "AUDIT_CHANGE_GROUP" }
-    its("audit enabled") { should cmp "Y" }
-    its("audit specification enabled") { should cmp "Y" }
-    its("audited_result") { should cmp "SUCCESS AND FAILURE" }
-  end
+  if sql_session.query(sql_server_audit_query).rows[0] == nil
+    describe "'SQL Server Audit'" do
+      it "should be set to capture both 'failed' and 'successful logins'." do
+        failure_message = "No audit actions found."
+        expect(sql_session.query(sql_server_audit_query).rows[0]).not_to be_nil, failure_message
+      end
+    end
+  else
+    describe "Audit action for Audit Change Group should be enabled. Value for" do
+      subject { sql_session.query(sql_server_audit_query).rows[0] }
+      its("audit_action_name") { should cmp "AUDIT_CHANGE_GROUP" }
+      its("audit enabled") { should cmp "Y" }
+      its("audit specification enabled") { should cmp "Y" }
+      its("audited_result") { should cmp "SUCCESS AND FAILURE" }
+    end
 
-  describe "Audit action for Failed Login Group should be enabled. Value for" do
-    subject { sql_session.query(sql_server_audit_query).rows[1] }
-    its("audit_action_name") { should cmp "FAILED_LOGIN_GROUP" }
-    its("audit enabled") { should cmp "Y" }
-    its("audit specification enabled") { should cmp "Y" }
-    its("audited_result") { should cmp "SUCCESS AND FAILURE" }
-  end
+    describe "Audit action for Failed Login Group should be enabled. Value for" do
+      subject { sql_session.query(sql_server_audit_query).rows[1] }
+      its("audit_action_name") { should cmp "FAILED_LOGIN_GROUP" }
+      its("audit enabled") { should cmp "Y" }
+      its("audit specification enabled") { should cmp "Y" }
+      its("audited_result") { should cmp "SUCCESS AND FAILURE" }
+    end
 
-  describe "Audit action for Successful Login Group should be enabled. Value for" do
-    subject { sql_session.query(sql_server_audit_query).rows[2] }
-    its("audit_action_name") { should cmp "SUCCESSFUL_LOGIN_GROUP" }
-    its("audit enabled") { should cmp "Y" }
-    its("audit specification enabled") { should cmp "Y" }
-    its("audited_result") { should cmp "SUCCESS AND FAILURE" }
+    describe "Audit action for Successful Login Group should be enabled. Value for" do
+      subject { sql_session.query(sql_server_audit_query).rows[2] }
+      its("audit_action_name") { should cmp "SUCCESSFUL_LOGIN_GROUP" }
+      its("audit enabled") { should cmp "Y" }
+      its("audit specification enabled") { should cmp "Y" }
+      its("audited_result") { should cmp "SUCCESS AND FAILURE" }
+    end
   end
 end

@@ -72,14 +72,24 @@ Changing the setting requires a restart of the SQL Server service."
   login_auditing_query = %{
     EXEC xp_loginconfig 'audit level';
   }
-  describe.one do
-    describe "'Login Auditing' should capture at least login failures." do
-      subject { sql_session.query(login_auditing_query).rows[0] }
-      its('config_value') { should cmp "failure" }
+
+  if sql_session.query(login_auditing_query).rows[0] == nil
+    describe "'Login Auditing'" do
+      it "should capture at least login failures." do
+        failure_message = "No audit actions found."
+        expect(sql_session.query(login_auditing_query).rows[0]).not_to be_nil, failure_message
+      end
     end
-    describe "'Login Auditing' should capture at least login failures." do
-      subject { sql_session.query(login_auditing_query).rows[0] }
-      its('config_value') { should cmp "all" }
+  else
+    describe.one do
+      describe "'Login Auditing' should capture at least login failures." do
+        subject { sql_session.query(login_auditing_query).rows[0] }
+        its('config_value') { should cmp "failure" }
+      end
+      describe "'Login Auditing' should capture at least login failures." do
+        subject { sql_session.query(login_auditing_query).rows[0] }
+        its('config_value') { should cmp "all" }
+      end
     end
   end
 end

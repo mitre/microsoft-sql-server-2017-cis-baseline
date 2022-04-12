@@ -70,55 +70,71 @@ GO"
     port: input('port'))
 
   get_all_dbs_query = %{
-  SELECT name FROM master.sys.databases;
-  GO
+    SELECT name FROM master.sys.databases;
+    GO
   }
-
   databases = sql_session.query(get_all_dbs_query).column('name')
 
+  inaccessible_dbs_query = %{
+    SELECT name FROM master.sys.databases
+    WHERE HAS_DBACCESS([name]) = 0;
+  }
+  inaccessible_dbs = sql_session.query(inaccessible_dbs_query).column('name')
+
   databases.each do |db|
-    
-    user_created_assemblies_query = %{
-      USE #{db}
-      SELECT name AS Assembly_Name, permission_set_desc
-      FROM sys.assemblies
-      WHERE is_user_defined = 1;
-      GO
-    }
-
-    clr_strict_security_query = %{
-      SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
-      FROM sys.configurations
-      WHERE name = 'clr strict security';
-    }
-
-    clr_enabled_query = %{
-      SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
-      FROM sys.configurations
-      WHERE name = 'clr enabled';
-    }
-
-    
     if input('excluded_dbs').include? db
       describe "#{db} db: Database excluded from testing." do
         skip "The #{db} database was excluded from testing by choice of the user."
       end
-    elsif sql_session.query(user_created_assemblies_query).rows[1].nil?
-      impact 0.0
-      describe "#{db} db: No user-created assemblies found." do
-        skip "#{db} db: This control is not applicable as no user-created assemblies were found."
+    elsif inaccessible_dbs.include? db
+      describe "#{db} db: Database is not accessible to this user." do
+        skip "The #{db} database is not accessible to this user."
       end
     else
-      describe.one do
-        describe "#{db} db: CLR Strict Security should be enabled." do
-          subject { sql_session.query(clr_strict_security_query).rows[0] }
-          its('value_configured') { should cmp 1 }
-          its('value_in_use') { should cmp 1 }
+      sql_session = mssql_session(
+      user: input('user'),
+      password: input('password'),
+      host: input('host'),
+      instance: input('instance'),
+      port: input('port'),
+      db_name: db)
+
+      user_created_assemblies_query = %{
+        SELECT name AS Assembly_Name, permission_set_desc
+        FROM sys.assemblies
+        WHERE is_user_defined = 1;
+        GO
+      }
+
+      clr_strict_security_query = %{
+        SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+        FROM sys.configurations
+        WHERE name = 'clr strict security';
+      }
+
+      clr_enabled_query = %{
+        SELECT name, CAST(value as int) as value_configured, CAST(value_in_use as int) as value_in_use
+        FROM sys.configurations
+        WHERE name = 'clr enabled';
+      }
+      
+      if sql_session.query(user_created_assemblies_query).rows[1].nil?
+        impact 0.0
+        describe "#{db} db: No user-created assemblies found." do
+          skip "#{db} db: This control is not applicable as no user-created assemblies were found."
         end
-        describe "#{db} db: CLR should be enabled." do
-          subject { sql_session.query(clr_enabled_query).rows[0] }
-          its('value_configured') { should cmp 0 }
-          its('value_in_use') { should cmp 0 }
+      else
+        describe.one do
+          describe "#{db} db: CLR Strict Security should be enabled." do
+            subject { sql_session.query(clr_strict_security_query).rows[0] }
+            its('value_configured') { should cmp 1 }
+            its('value_in_use') { should cmp 1 }
+          end
+          describe "#{db} db: CLR should be enabled." do
+            subject { sql_session.query(clr_enabled_query).rows[0] }
+            its('value_configured') { should cmp 0 }
+            its('value_in_use') { should cmp 0 }
+          end
         end
       end
     end

@@ -55,33 +55,41 @@ permission setting."
   SELECT name FROM master.sys.databases;
   GO
   }
-
   databases = sql_session.query(get_all_dbs_query).column('name')
 
+  inaccessible_dbs_query = %{
+    SELECT name FROM master.sys.databases
+    WHERE HAS_DBACCESS([name]) = 0;
+  }
+  inaccessible_dbs = sql_session.query(inaccessible_dbs_query).column('name')
+
   databases.each do |db|
-  
-    sql_session = mssql_session(
-      user: input('user'),
-      password: input('password'),
-      host: input('host'),
-      instance: input('instance'),
-      port: input('port'),
-      db_name: db)
-
-    clr_assembly_permissions_query = %{
-      SELECT name, permission_set_desc
-      FROM sys.assemblies
-      WHERE is_user_defined = 1
-      AND permission_set_desc != 'SAFE_ACCESS';
-    }
-
-    noncompliant_clr_assemblies = sql_session.query(clr_assembly_permissions_query).column('name')
-
     if input('excluded_dbs').include? db
       describe "#{db} db: Database excluded from testing." do
         skip "The #{db} database was excluded from testing by choice of the user."
       end
+    elsif inaccessible_dbs.include? db
+      describe "#{db} db: Database is not accessible to this user." do
+        skip "The #{db} database is not accessible to this user."
+      end
     else
+      sql_session = mssql_session(
+        user: input('user'),
+        password: input('password'),
+        host: input('host'),
+        instance: input('instance'),
+        port: input('port'),
+        db_name: db)
+
+      clr_assembly_permissions_query = %{
+        SELECT name, permission_set_desc
+        FROM sys.assemblies
+        WHERE is_user_defined = 1
+        AND permission_set_desc != 'SAFE_ACCESS';
+      }
+
+      noncompliant_clr_assemblies = sql_session.query(clr_assembly_permissions_query).column('name')
+
       describe "#{db} db: 'CLR Assembly Permission Set'" do
         it "should be set to 'SAFE_ACCESS'." do
           failure_message = "List of user-defined assmeblies without 'SAFE_ACCESS': #{noncompliant_clr_assemblies.join(", ")}"

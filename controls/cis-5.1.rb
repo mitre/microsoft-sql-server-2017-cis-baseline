@@ -113,8 +113,18 @@ intervals. The logs must be archived and digitally signed on a periodic basis."
     SELECT ISNULL(@NumErrorLogs, -1) as error_log_num;
   }
 
-  describe "'Maximum number of error log files' should be set to greater than or equal to '12'. The number" do
-    subject { sql_session.query(error_logs_num_query).rows[1].values[0].to_i }
-    it { should be >= input('max_error_logs') }
+  if sql_session.query(error_logs_num_query).rows[0].keys.include? "error_log_num"
+    describe "'Maximum number of error log files' should be set to greater than or equal to '12'. The number" do
+      subject { sql_session.query(error_logs_num_query).rows[0]["error_log_num"].to_i }
+      it { should be >= input('max_error_logs') }
+    end
+  else
+    unavailable_file = sql_session.query(error_logs_num_query).rows[1].values[0].to_i
+    describe "'Maximum number of error log files'" do
+      it "should be set to greater than or equal to '12'." do
+        failure_message = "Registry value for 'NumErrorLogs' not found."
+        expect(unavailable_file).not_to equal(-1), failure_message
+      end
+    end
   end
 end

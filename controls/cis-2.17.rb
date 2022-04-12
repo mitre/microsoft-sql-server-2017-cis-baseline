@@ -62,12 +62,12 @@ server and executing required tasks or functions."
     WHERE name = 'sa';
     }
 
-  sa_login = sql_session.query(sa_login_query).rows[0].name
+  sa_login = sql_session.query(sa_login_query).column('name')
 
   describe "Login account with name 'sa'" do
     it "should not exist" do
       failure_message = "Rename and disable the 'sa' login account."
-      expect(sa_login).to be_nil, failure_message
+      expect(sa_login).to be_empty, failure_message
     end
   end
 end

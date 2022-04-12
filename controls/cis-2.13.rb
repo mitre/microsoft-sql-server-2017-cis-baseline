@@ -68,12 +68,12 @@ install, the default for the sa login is enabled."
     WHERE sid = 0x01 AND is_disabled = 0;
     }
 
-  sysadmin = sql_session.query(sa_login_query).rows[0].name
+  sysadmin = sql_session.query(sa_login_query).column('name')
 
   describe 'The original login account' do
     it "should be disabled." do
-      failure_message = "The '#{sysadmin}' login account needs to be disabled."
-      expect(sysadmin).to be_nil, failure_message
+      failure_message = "The '#{sysadmin[0]}' login account needs to be disabled."
+      expect(sysadmin).to be_empty, failure_message
     end
   end
 end

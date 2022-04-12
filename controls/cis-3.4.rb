@@ -51,35 +51,51 @@ databases."
 
   contained_dbs = sql_session.query(contained_dbs_query).column('name')
 
-  contained_dbs.each do |db|
+  inaccessible_dbs_query = %{
+    SELECT name FROM master.sys.databases
+    WHERE HAS_DBACCESS([name]) = 0;
+  }
+  inaccessible_dbs = sql_session.query(inaccessible_dbs_query).column('name')
 
-    sql_session = mssql_session(
-    user: input('user'),
-    password: input('password'),
-    host: input('host'),
-    instance: input('instance'),
-    port: input('port'),
-    db_name: db)
+  if contained_dbs.empty?
+    impact 0.0
+    describe "No contained databases found." do
+      skip "This control is not applicable as no contained databases were found."
+    end
+  else
+    contained_dbs.each do |db|
+      if input('excluded_dbs').include? db
+        describe "#{db} db: Database excluded from testing." do
+          skip "The #{db} database was excluded from testing by choice of the user."
+        end
+      elsif inaccessible_dbs.include? db
+        describe "#{db} db: Database is not accessible to this user." do
+          skip "The #{db} database is not accessible to this user."
+        end
+      else
+        sql_session = mssql_session(
+        user: input('user'),
+        password: input('password'),
+        host: input('host'),
+        instance: input('instance'),
+        port: input('port'),
+        db_name: db)
 
-    sql_auth_users_query = %{
-      SELECT name AS DBUser
-      FROM sys.database_principals
-      WHERE name NOT IN ('dbo','Information_Schema','sys','guest')
-      AND type IN ('U','S','G')
-      AND authentication_type = 2;
-    }
+        sql_auth_users_query = %{
+          SELECT name AS DBUser
+          FROM sys.database_principals
+          WHERE name NOT IN ('dbo','Information_Schema','sys','guest')
+          AND type IN ('U','S','G')
+          AND authentication_type = 2;
+        }
 
-    sql_auth_users = sql_session.query(sql_auth_users_query).column('dbuser')
+        sql_auth_users = sql_session.query(sql_auth_users_query).column('dbuser')
 
-    if input('excluded_dbs').include? db
-      describe "#{db} db: Database excluded from testing." do
-        skip "The #{db} database was excluded from testing by choice of the user."
-      end
-    else
-      describe "#{db} db: SQL Authentication" do
-        it "should not be used in contained databases." do
-          failure_message = "#{db} db: #{sql_auth_users.join(', ')} user(s) should not use SQL Authentication in a contained database."
-          expect(sql_auth_users).to be_empty, failure_message
+        describe "#{db} db: SQL Authentication" do
+          it "should not be used in contained databases." do
+            failure_message = "#{db} db: #{sql_auth_users.join(', ')} user(s) should not use SQL Authentication in a contained database."
+            expect(sql_auth_users).to be_empty, failure_message
+          end
         end
       end
     end
