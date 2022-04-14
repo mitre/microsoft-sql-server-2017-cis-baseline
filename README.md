@@ -1,5 +1,5 @@
 # microsoft-sql-server-2017-cis-baseline
-An InSpec Profile to validate the secure configuration of Microsoft SQL Server 2017 CIS Benchmark, against [CIS](https://www.cisecurity.org/cis-benchmarks/)'s CIS Microsoft SQL Server 2017 version 1.2.0.
+An InSpec Profile to validate the secure configuration of Microsoft SQL Server 2017, against [CIS](https://www.cisecurity.org/cis-benchmarks/)'s Benchmark for Microsoft SQL Server 2017 version 1.2.0.
 
 ## Getting Started  
 
@@ -32,7 +32,7 @@ approved_sql_version:
 # Set to True if the MS SQL Server instance is clustered
 clustered_instance: False
 
-# Enter the maximum number of error log files allowed
+# Enter the maximum number of error log files allowed (CIS required value is 12; this value is not hard-coded to allow for tailoring this profile to organizational requirements)
 max_error_logs: 12
 
 # List of the databases excluded from being evaluated
