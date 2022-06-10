@@ -107,7 +107,7 @@ intervals. The logs must be archived and digitally signed on a periodic basis."
     DECLARE @NumErrorLogs AS INT;
     EXEC master.sys.xp_instance_regread
     @rootkey = N'HKEY_LOCAL_MACHINE',
-    @key = N'SOFTWARE\\Microsoft\\Microsoft SQL Server\\MSSQLServer',
+    @key = N'SOFTWARE\\Microsoft\\MSSQLServer\\MSSQLServer',
     @value_name = N'NumErrorLogs',
     @value = @NumErrorLogs OUTPUT;
     SELECT ISNULL(@NumErrorLogs, -1) as error_log_num;
